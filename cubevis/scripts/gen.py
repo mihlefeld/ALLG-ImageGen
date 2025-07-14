@@ -1,6 +1,7 @@
 import argparse
 from cubevis import get_colorizer
 from cubevis.cube import OctaminxRotations
+from typing import List
 import json
 import os
 import pandas as pd
@@ -101,28 +102,22 @@ def clean_alg_octaminx(alg):
     return final_moves
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-p", "--puzzle",  default="3x3-LL", help="Name of the image generator")
-    parser.add_argument("-i", "--input", help="Path to a csv file with all the scrambles with the columns Algset,Group,Name,[Scramble|Alg]")
-    parser.add_argument("-o", "--output", help="Path to the directory where the images shall be saved", required=True)
-    parser.add_argument('-f', "--filter", nargs="*", default=[])
-    args = parser.parse_args()
-    puzzle = get_colorizer(args.puzzle)
-    output_dir = Path(args.output)
-    os.makedirs(output_dir, exist_ok=True)
+def main(puzzle: str, input_path: Path, output_path: Path, filter: List[str]):
+    puzzle_name = puzzle
+    puzzle = get_colorizer(puzzle)
+    os.makedirs(output_path, exist_ok=True)
     batch_solver_inputs = []
-    df = pd.read_csv(args.input)
+    df = pd.read_csv(input_path)
     case_id = 1
     svg_strings = dict()
     for i, row in df.iterrows():
-        if len(args.filter) > 0 and row["Algset"] not in args.filter:
+        if len(filter) > 0 and row["Algset"] not in filter:
             continue
-        filename =  output_dir / f"{case_id}.svg"
+        filename =  output_path / f"{case_id}.svg"
         alg = clean_alg(row["Algs"].split("\n")[0], puzzle.cube)
-        if "Skewb" in args.puzzle:
+        if "Skewb" in puzzle_name:
             alg = clean_alg([alg for alg in row["Algs"].split("\n") if "H" not in alg and "S" not in alg][0])
-        if "Octaminx" in args.puzzle:
+        if "Octaminx" in puzzle_name:
             alg = clean_alg_octaminx(alg)
         
         puzzle.inverse(alg, filename)
@@ -133,7 +128,7 @@ def main():
             alg += " " + ref_rot
         batch_solver_inputs.append(alg)
         case_id += 1
-    with open(output_dir / "_batch_solver_input.txt", "w") as file:
+    with open(output_path / "_batch_solver_input.txt", "w") as file:
         file.write(puzzle.cube.mdefs)
         unique, inverses, counts = np.unique(batch_solver_inputs, return_inverse=True, return_counts=True)
         for i, s in enumerate(batch_solver_inputs):
@@ -145,7 +140,7 @@ def main():
         bs_str = ',\n'.join(batch_solver_inputs)
         file.write(f"\n[\n{bs_str}\n]")
     
-    with open(output_dir.parent / "combined.json", "w") as file:
+    with open(output_path.parent / "combined.json", "w") as file:
         json.dump(svg_strings, file)
         
 

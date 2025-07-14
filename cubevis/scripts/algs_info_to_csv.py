@@ -1,20 +1,10 @@
 import argparse
 import json
 import pandas as pd
-import pathlib
+from pathlib import Path
 import re
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--input')
-    parser.add_argument('-g', '--group')
-    parser.add_argument('-a', '--algsets')
-    parser.add_argument('-o', '--output')
-    args = parser.parse_args()
-    input_path = pathlib.Path(args.input)
-    algsets_path = pathlib.Path(args.algsets)
-    groups_path = pathlib.Path(args.group)
-    output_path = pathlib.Path(args.output)
+def main(input_path: Path, groups_path: Path, algsets_path: Path, output_path: Path):
     with open(input_path) as file:
         algs_info = json.load(file)
     with open(groups_path) as file:
