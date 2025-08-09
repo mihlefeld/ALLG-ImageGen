@@ -102,7 +102,7 @@ def clean_alg_octaminx(alg):
     return final_moves
 
 
-def main(puzzle: str, input_path: Path, output_path: Path, filter: List[str]):
+def gen_images(puzzle: str, input_path: Path, output_path: Path, filter: List[str] = []):
     puzzle_name = puzzle
     puzzle = get_colorizer(puzzle)
     os.makedirs(output_path, exist_ok=True)
@@ -147,4 +147,4 @@ def main(puzzle: str, input_path: Path, output_path: Path, filter: List[str]):
 
 
 if __name__ == "__main__":
-    main()
+    gen_images()

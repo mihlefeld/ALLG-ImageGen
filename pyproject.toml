@@ -13,3 +13,5 @@ dependencies = [
     "scipy",
     "typer"
 ]
+[project.scripts]
+allg-gen = "cubevis.cli:app"

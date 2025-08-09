@@ -3,20 +3,14 @@ import pandas as pd
 import json
 import pathlib
 import re
+from pathlib import Path
 from collections import defaultdict
 
 def save_json(obj, filename):
     with open(filename, 'w', encoding="UTF-8") as file:
         json.dump(obj, file, ensure_ascii=False)
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-s', '--scrambles')
-    parser.add_argument('-c', '--csv')
-    parser.add_argument('-o', '--output')
-    parser.add_argument('-f', '--filter', nargs="*", default=[])
-    args = parser.parse_args()
-    output_dir = pathlib.Path(args.output)
+def get_jsons(scrambles_path: Path, csv_path: Path, output_dir: Path, filter: list[str] = []):
     output_dir.mkdir(parents=True, exist_ok=True)
     algs_info = defaultdict(dict)
     groups_info = defaultdict(list)
@@ -24,7 +18,7 @@ def main():
     scrambles = {}
     filter_set = set()
     selected_algsets = {}
-    algs_df = pd.read_csv(args.csv, encoding="UTF-8")
+    algs_df = pd.read_csv(csv_path, encoding="UTF-8")
     with open("test.txt", encoding="UTF-8", mode="w") as file:
         file.write('\n'.join([group for group in algs_df["Group"].unique()]))
     case_id = 1
@@ -33,7 +27,7 @@ def main():
         group = row["Group"]
         name = row["Name"]
         algs = [alg.strip() for alg in row["Algs"].split("\n")]
-        if len(args.filter) > 0 and algset not in args.filter:
+        if len(filter) > 0 and algset not in filter:
             continue
         filter_set.add(i)
         selected_algsets[algset] = True
@@ -47,7 +41,7 @@ def main():
         algs_info[case_id]['algset'] = algset
         case_id += 1
     
-    scramble_df = pd.read_excel(args.scrambles, engine="openpyxl")
+    scramble_df = pd.read_excel(scrambles_path, engine="openpyxl")
     case_id = 1
     for c in scramble_df.columns:
         number = int(c.split()[-1])
@@ -71,4 +65,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    get_jsons()
