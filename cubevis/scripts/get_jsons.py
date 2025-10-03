@@ -10,7 +10,15 @@ def save_json(obj, filename):
     with open(filename, 'w', encoding="UTF-8") as file:
         json.dump(obj, file, ensure_ascii=False)
 
+def naive_invert(scramble: str):
+    inverted = []
+    scramble = scramble.strip()
+    for move in scramble.split(" ")[::-1]:
+        inverted.append(move + "'" if move[-1] != "'" else move[:-1])
+    return " ".join(inverted)
+
 def get_jsons(scrambles_path: Path, csv_path: Path, output_dir: Path, filter: list[str] = []):
+    needs_invert = "Octaminx" in csv_path.as_posix()
     output_dir.mkdir(parents=True, exist_ok=True)
     algs_info = defaultdict(dict)
     groups_info = defaultdict(list)
@@ -49,10 +57,12 @@ def get_jsons(scrambles_path: Path, csv_path: Path, output_dir: Path, filter: li
             continue
         if number // 2 not in filter_set:
             continue
-        case_scrambles = list(scramble_df[c][1:])
+        case_scrambles = [scr for scr in scramble_df[c][1:] if type(scr) == str]
         if len(case_scrambles) < 1:
             print(f"Wrong {case_id}!")
         case_scrambles = [re.sub(r'\([^\)]*\) ', '', scr) for scr in case_scrambles if type(scr) == str]
+        if needs_invert:
+            case_scrambles = list(map(naive_invert, case_scrambles))
         scrambles[case_id] = case_scrambles
         algs_info[case_id]['s'] = case_scrambles[0]
         case_id += 1 

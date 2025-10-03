@@ -1,5 +1,6 @@
 import argparse
 from cubevis import get_colorizer
+from cubevis.colorizer import OctaminxColorizer, BaseColorizer
 from cubevis.cube import OctaminxRotations
 from typing import List
 import json
@@ -102,9 +103,8 @@ def clean_alg_octaminx(alg):
     return final_moves
 
 
-def gen_images(puzzle: str, input_path: Path, output_path: Path, filter: List[str] = []):
-    puzzle_name = puzzle
-    puzzle = get_colorizer(puzzle)
+def gen_images(puzzle_name: str, input_path: Path, output_path: Path, filter: List[str] = []):
+    puzzle: BaseColorizer = get_colorizer(puzzle_name)
     os.makedirs(output_path, exist_ok=True)
     batch_solver_inputs = []
     df = pd.read_csv(input_path)
@@ -122,14 +122,18 @@ def gen_images(puzzle: str, input_path: Path, output_path: Path, filter: List[st
         
         puzzle.inverse(alg, filename)
         svg_strings[case_id] = puzzle.create_svg()
-        puzzle.cube.scramble(alg)
+        if isinstance(puzzle, OctaminxColorizer):
+            alg = puzzle.inverse(alg)
+        else:
+            puzzle.cube.scramble(alg)
         ref_rot = puzzle.cube.to_reference_rotation()
         if ref_rot != "":
             alg += " " + ref_rot
         batch_solver_inputs.append(alg)
         case_id += 1
-    with open(output_path / "_batch_solver_input.txt", "w") as file:
+    with open(output_path / "_batch_solver_def.txt", "w") as file:
         file.write(puzzle.cube.mdefs)
+    with open(output_path / "_batch_solver_input.txt", "w") as file:
         unique, inverses, counts = np.unique(batch_solver_inputs, return_inverse=True, return_counts=True)
         for i, s in enumerate(batch_solver_inputs):
             if s in batch_solver_inputs[:i]:
@@ -138,7 +142,7 @@ def gen_images(puzzle: str, input_path: Path, output_path: Path, filter: List[st
                 print("First occurance:", *df.iloc[b][["Algset", "Group", "Name"]])
         
         bs_str = ',\n'.join(batch_solver_inputs)
-        file.write(f"\n[\n{bs_str}\n]")
+        file.write(f"[\n{bs_str}\n]")
     
     with open(output_path.parent / "combined.json", "w") as file:
         json.dump(svg_strings, file)

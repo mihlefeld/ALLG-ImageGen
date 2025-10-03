@@ -369,16 +369,6 @@ t: (WRGP+1) (YZBO-1) (WP+1 WR+1 GR+1 GP+1) (W3 R1 G1 P2) (WPOB-1 WBZR+2 YGRZ+1 Y
         return ""
         
 """ equivalences
-{Ya Yb Yc}
-{Wa Wb Wc}
-{Ga Gb Gc}
-{Pa Pb Pc}
-{Ra Rb Rc}
-{Ba Bb Bc}
-{Oa Ob Oc}
-{Za Zb Zc}
-{W R G P O B Z Y}
-
 {Y1 Y2 Y3}
 {W1 W2 W3}
 {G1 G2 G3}

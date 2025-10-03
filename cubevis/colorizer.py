@@ -106,6 +106,7 @@ f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {self.width} {self.heig
             rotation = " ".join([(m[:-1] if m[-1] == "'" else m + "'") for m in rotation.split(' ')][::-1]) + " "
 
         self.scramble(rotation + scramble, path)
+        return rotation + scramble
 
     def scramble(self, moves, path=None):
         self.cube.scramble(" ".join([self.pre_moves, moves]))
@@ -626,9 +627,20 @@ class OctaminxColorizer(BaseColorizer):
             "W": colors["white"]
         }
 
+# R = right, G = front, P = Left, W = Up, O = Back left, B = Back, Z = Back right, Y = bottom
+
 class OctaminxL3TColorizer(OctaminxColorizer):
-    def __init__(self) -> None:
-        super().__init__("t' xr' y")
+    def get_face_to_color(self) -> Dict[str, str]:
+        return {
+            "R": colors["orange"],
+            "B": colors["ignore"],
+            "G": colors["purple"],
+            "Y": colors["white"],
+            "P": colors["green"],
+            "Z": colors["blue"],
+            "O": colors["red"],
+            "W": colors["yellow"]
+        }
 
 class OctaminxOLPColorizer(OctaminxL3TColorizer):
     def get_face_to_color(self) -> Dict[str, str]:
