@@ -23,7 +23,7 @@ class Cube:
             for piece in pieces:
                 piece_name = piece
                 orientation_change = 0
-                if str.isnumeric(piece[-1]) and len(piece) > 2:
+                if str.isnumeric(piece[-1]) and len(piece) > 2 and "+" in piece or "-" in piece:
                     orientation_change = int(piece[-2:])
                     piece_name = piece[:-2]
                 cylce_list.append((piece_name, orientation_change))
@@ -62,7 +62,7 @@ class Cube:
     def move(self, m):
         if m == "":
             return
-        ms = re.findall(r"[A-z]+[\d']*", m)
+        ms = re.findall(r"[\d]?[A-z]+[\d']*", m)
         if len(ms) > 1:
             for m_ in ms:
                 self.move(m_)
@@ -96,7 +96,7 @@ class Cube:
             tmp = []
             for (source, oc) in cycle:
                 piece, ori = self.pieces[source]
-                ori = (ori + oc) % len(piece)
+                ori = (ori + oc) % len([c for c in piece if c.isalpha()])
                 tmp += [(piece, ori)]
             for dest, piece in zip(destinations, tmp):
                 self.pieces[dest] = piece
@@ -379,6 +379,40 @@ t: (WRGP+1) (YZBO-1) (WP+1 WR+1 GR+1 GP+1) (W3 R1 G1 P2) (WPOB-1 WBZR+2 YGRZ+1 Y
 {Z1 Z2 Z3}
 {W R G P O B Z Y}
 """      
+
+class FiveByFive(Cube):
+    def __init__(self) -> None:
+        super().__init__("""U: (UF UL UB UR) (URF UFL ULB UBR) (U1 U3 U5 U7) (U2 U4 U6 U8) (UF1 UL1 UB1 UR1) (UF2 UL2 UB2 UR2)
+u: (UF UL UB UR) (URF UFL ULB UBR) (U1 U3 U5 U7) (U2 U4 U6 U8) (UF1 UL1 UB1 UR1) (UF2 UL2 UB2 UR2) (FR1-1 FL2-1 BL1-1 BR2-1) (R1 F1 L1 B1) (R2 F2 L2 B2) (R3 F3 L3 B3)
+3u: (UF UL UB UR) (URF UFL ULB UBR) (U1 U3 U5 U7) (U2 U4 U6 U8) (UF1 UL1 UB1 UR1) (UF2 UL2 UB2 UR2) (FR1-1 FL2-1 BL1-1 BR2-1) (R1 F1 L1 B1) (R2 F2 L2 B2) (R3 F3 L3 B3) (FR-1 FL-1 BL-1 BR-1) (R4 F4 L4 B4) (R F L B) (R8 F8 L8 B8)
+4u: (UF UL UB UR) (URF UFL ULB UBR) (U1 U3 U5 U7) (U2 U4 U6 U8) (UF1 UL1 UB1 UR1) (UF2 UL2 UB2 UR2) (FR1-1 FL2-1 BL1-1 BR2-1) (R1 F1 L1 B1) (R2 F2 L2 B2) (R3 F3 L3 B3) (FR-1 FL-1 BL-1 BR-1) (R4 F4 L4 B4) (R F L B) (R8 F8 L8 B8) (R5 F5 L5 B5) (R6 F6 L6 B6) (R7 F7 L7 B7) (FR2-1 FL1-1 BL2-1 BR1-1)
+L: (UL FL DL BL) (UFL+2 DLF+1 DBL+2 ULB+1) (UL1 FL1 DL1 BL1) (UL2 FL2 DL2 BL2) (L1 L3 L5 L7) (L2 L4 L6 L8)
+l: (UL FL DL BL) (UFL+2 DLF+1 DBL+2 ULB+1) (U1 F1 D1 B5) (U7 F7 D7 B3) (U8 F8 D8 B4) (UL1 FL1 DL1 BL1) (UB1+1 UF2+1 DF1+1 DB2+1) (UL2 FL2 DL2 BL2) (L1 L3 L5 L7) (L2 L4 L6 L8)
+3l: (UF+1 DF+1 DB+1 UB+1) (UL FL DL BL) (UFL+2 DLF+1 DBL+2 ULB+1) (U1 F1 D1 B5) (U7 F7 D7 B3) (U2 F2 D2 B6) (U6 F6 D6 B2) (U8 F8 D8 B4) (UL1 FL1 DL1 BL1) (UB1+1 UF2+1 DF1+1 DB2+1) (UL2 FL2 DL2 BL2) (L1 L3 L5 L7) (L2 L4 L6 L8) (F D B U)
+4l: (UF+1 DF+1 DB+1 UB+1) (UL FL DL BL) (UFL+2 DLF+1 DBL+2 ULB+1) (U1 F1 D1 B5) (U3 F3 D3 B7) (U5 F5 D5 B1) (U7 F7 D7 B3) (U2 F2 D2 B6) (U4 F4 D4 B8) (U6 F6 D6 B2) (U8 F8 D8 B4) (UF1+1 DF2+1 DB1+1 UB2+1) (UL1 FL1 DL1 BL1) (UB1+1 UF2+1 DF1+1 DB2+1) (UL2 FL2 DL2 BL2) (L1 L3 L5 L7) (L2 L4 L6 L8) (F D B U)
+R: (UR BR DR FR) (URF+1 UBR+2 DRB+1 DFR+2) (UR1 BR1 DR1 FR1) (UR2 BR2 DR2 FR2) (R1 R3 R5 R7) (R2 R4 R6 R8)
+r: (UR BR DR FR) (URF+1 UBR+2 DRB+1 DFR+2) (U3 B7 D3 F3) (U5 B1 D5 F5) (U4 B8 D4 F4) (UF1+1 UB2+1 DB1+1 DF2+1) (UR1 BR1 DR1 FR1) (UR2 BR2 DR2 FR2) (R1 R3 R5 R7) (R2 R4 R6 R8)
+3r: (UF+1 UB+1 DB+1 DF+1) (UR BR DR FR) (URF+1 UBR+2 DRB+1 DFR+2) (U3 B7 D3 F3) (U5 B1 D5 F5) (U2 B6 D2 F2) (U4 B8 D4 F4) (U6 B2 D6 F6) (UF1+1 UB2+1 DB1+1 DF2+1) (UR1 BR1 DR1 FR1) (UR2 BR2 DR2 FR2) (R1 R3 R5 R7) (R2 R4 R6 R8) (F U B D)
+4r: (UF+1 UB+1 DB+1 DF+1) (UR BR DR FR) (URF+1 UBR+2 DRB+1 DFR+2) (U1 B5 D1 F1) (U3 B7 D3 F3) (U5 B1 D5 F5) (U7 B3 D7 F7) (U2 B6 D2 F2) (U4 B8 D4 F4) (U6 B2 D6 F6) (U8 B4 D8 F8) (UF1+1 UB2+1 DB1+1 DF2+1) (UB1+1 DB2+1 DF1+1 UF2+1) (UR1 BR1 DR1 FR1) (UR2 BR2 DR2 FR2) (R1 R3 R5 R7) (R2 R4 R6 R8) (F U B D)
+B: (UB+1 BL+1 DB+1 BR+1) (ULB+2 DBL+1 DRB+2 UBR+1) (UB1+1 BL2+1 DB1+1 BR2+1) (UB2+1 BL1+1 DB2+1 BR1+1) (B1 B3 B5 B7) (B2 B4 B6 B8)
+b: (UB+1 BL+1 DB+1 BR+1) (ULB+2 DBL+1 DRB+2 UBR+1) (U1 L7 D5 R3) (U3 L1 D7 R5) (U2 L8 D6 R4) (UB1+1 BL2+1 DB1+1 BR2+1) (UR1+1 UL2+1 DL1+1 DR2+1) (UB2+1 BL1+1 DB2+1 BR1+1) (B1 B3 B5 B7) (B2 B4 B6 B8)
+3b: (UL+1 DL+1 DR+1 UR+1) (UB+1 BL+1 DB+1 BR+1) (ULB+2 DBL+1 DRB+2 UBR+1) (U1 L7 D5 R3) (U3 L1 D7 R5) (U2 L8 D6 R4) (U4 L2 D8 R6) (U8 L6 D4 R2) (UB1+1 BL2+1 DB1+1 BR2+1) (UR1+1 UL2+1 DL1+1 DR2+1) (UB2+1 BL1+1 DB2+1 BR1+1) (B1 B3 B5 B7) (B2 B4 B6 B8) (R U L D)
+4b: (UL+1 DL+1 DR+1 UR+1) (UB+1 BL+1 DB+1 BR+1) (ULB+2 DBL+1 DRB+2 UBR+1) (U1 L7 D5 R3) (U3 L1 D7 R5) (U5 L3 D1 R7) (U7 L5 D3 R1) (U2 L8 D6 R4) (U4 L2 D8 R6) (U6 L4 D2 R8) (U8 L6 D4 R2) (UL1+1 DL2+1 DR1+1 UR2+1) (UB1+1 BL2+1 DB1+1 BR2+1) (UR1+1 UL2+1 DL1+1 DR2+1) (UB2+1 BL1+1 DB2+1 BR1+1) (B1 B3 B5 B7) (B2 B4 B6 B8) (R U L D)
+D: (DF DR DB DL) (DF1 DR1 DB1 DL1) (DFR DRB DBL DLF) (D1 D3 D5 D7) (D2 D4 D6 D8) (DF2 DR2 DB2 DL2)
+d: (R5 B5 L5 F5) (R6 B6 L6 F6) (R7 B7 L7 F7) (FR2+1 BR1+1 BL2+1 FL1+1) (DF DR DB DL) (DF1 DR1 DB1 DL1) (DFR DRB DBL DLF) (D1 D3 D5 D7) (D2 D4 D6 D8) (DF2 DR2 DB2 DL2)
+3d: (FR+1 BR+1 BL+1 FL+1) (R4 B4 L4 F4) (R B L F) (R8 B8 L8 F8) (R5 B5 L5 F5) (R6 B6 L6 F6) (R7 B7 L7 F7) (FR2+1 BR1+1 BL2+1 FL1+1) (DF DR DB DL) (DF1 DR1 DB1 DL1) (DFR DRB DBL DLF) (D1 D3 D5 D7) (D2 D4 D6 D8) (DF2 DR2 DB2 DL2)
+4d: (FR1+1 BR2+1 BL1+1 FL2+1) (R1 B1 L1 F1) (R2 B2 L2 F2) (R3 B3 L3 F3) (FR+1 BR+1 BL+1 FL+1) (R4 B4 L4 F4) (R B L F) (R8 B8 L8 F8) (R5 B5 L5 F5) (R6 B6 L6 F6) (R7 B7 L7 F7) (FR2+1 BR1+1 BL2+1 FL1+1) (DF DR DB DL) (DF1 DR1 DB1 DL1) (DFR DRB DBL DLF) (D1 D3 D5 D7) (D2 D4 D6 D8) (DF2 DR2 DB2 DL2)
+F: (UF+1 FR+1 DF+1 FL+1) (URF+2 DFR+1 DLF+2 UFL+1) (UF1+1 FR2+1 DF1+1 FL2+1) (UF2+1 FR1+1 DF2+1 FL1+1) (F1 F3 F5 F7) (F2 F4 F6 F8)
+f: (UF+1 FR+1 DF+1 FL+1) (URF+2 DFR+1 DLF+2 UFL+1) (U5 R7 D1 L3) (U7 R1 D3 L5) (U6 R8 D2 L4) (UF1+1 FR2+1 DF1+1 FL2+1) (UL1+1 UR2+1 DR1+1 DL2+1) (UF2+1 FR1+1 DF2+1 FL1+1) (F1 F3 F5 F7) (F2 F4 F6 F8)
+3f: (UF+1 FR+1 DF+1 FL+1) (UL+1 UR+1 DR+1 DL+1) (URF+2 DFR+1 DLF+2 UFL+1) (U5 R7 D1 L3) (U7 R1 D3 L5) (U4 R6 D8 L2) (U6 R8 D2 L4) (U8 R2 D4 L6) (UF1+1 FR2+1 DF1+1 FL2+1) (UL1+1 UR2+1 DR1+1 DL2+1) (UF2+1 FR1+1 DF2+1 FL1+1) (F1 F3 F5 F7) (F2 F4 F6 F8) (R D L U)
+4f: (UF+1 FR+1 DF+1 FL+1) (UL+1 UR+1 DR+1 DL+1) (URF+2 DFR+1 DLF+2 UFL+1) (U1 R3 D5 L7) (U3 R5 D7 L1) (U5 R7 D1 L3) (U7 R1 D3 L5) (U2 R4 D6 L8) (U4 R6 D8 L2) (U6 R8 D2 L4) (U8 R2 D4 L6) (UF1+1 FR2+1 DF1+1 FL2+1) (UL1+1 UR2+1 DR1+1 DL2+1) (UR1+1 DR2+1 DL1+1 UL2+1) (UF2+1 FR1+1 DF2+1 FL1+1) (F1 F3 F5 F7) (F2 F4 F6 F8) (R D L U)
+x: (UF1-1 UB2-1 DB1-1 DF2-1) (UF2-1 UB1-1 DB2-1 DF1-1) (UL1 BL1 DL1 FL1) (UL2 BL2 DL2 FL2) (UR1 BR1 DR1 FR1) (UR2 BR2 DR2 FR2) (F U B D) (F1 U1 B5 D1) (F2 U2 B6 D2) (F3 U3 B7 D3) (F4 U4 B8 D4) (F5 U5 B1 D5) (F6 U6 B2 D6) (F7 U7 B3 D7) (F8 U8 B4 D8) (R1 R3 R5 R7) (R2 R4 R6 R8) (L1 L7 L5 L3) (L2 L8 L6 L4) (UR BR DR FR) (URF+1 UBR-1 DRB+1 DFR-1) (UL BL DL FL) (UFL-1 ULB+1 DBL-1 DLF+1) (UF-1 UB-1 DB-1 DF-1)
+y: (UF UL UB UR) (URF UFL ULB UBR) (U1 U3 U5 U7) (U2 U4 U6 U8) (UF1 UL1 UB1 UR1) (UF2 UL2 UB2 UR2) (FR1+1 FL2+1 BL1+1 BR2+1) (R1 F1 L1 B1) (R2 F2 L2 B2) (R3 F3 L3 B3) (FR+1 FL+1 BL+1 BR+1) (R4 F4 L4 B4) (R F L B) (R8 F8 L8 B8) (R5 F5 L5 B5) (R6 F6 L6 B6) (R7 F7 L7 B7) (FR2+1 FL1+1 BL2+1 BR1+1) (DF DL DB DR) (DF1 DL1 DB1 DR1) (DFR DLF DBL DRB) (D1 D7 D5 D3) (D2 D8 D6 D4) (DF2 DL2 DB2 DR2)
+z: (UF+1 FR+1 DF+1 FL+1) (UL+1 UR+1 DR+1 DL+1) (UB+1 BR+1 DB+1 BL+1) (URF+2 DFR+1 DLF+2 UFL+1) (ULB+2 UBR+1 DRB+2 DBL+1) (U1 R3 D5 L7) (U3 R5 D7 L1) (U5 R7 D1 L3) (U7 R1 D3 L5) (U2 R4 D6 L8) (U4 R6 D8 L2) (U6 R8 D2 L4) (U8 R2 D4 L6) (UF1+1 FR2+1 DF1+1 FL2+1) (UL1+1 UR2+1 DR1+1 DL2+1) (UB1+1 BR2+1 DB1+1 BL2+1) (UR1+1 DR2+1 DL1+1 UL2+1) (UF2+1 FR1+1 DF2+1 FL1+1) (UB2+1 BR1+1 DB2+1 BL1+1) (F1 F3 F5 F7) (B1 B7 B5 B3) (F2 F4 F6 F8) (B2 B8 B6 B4) (R D L U)""")
+        
+    def getName(self):
+        return "5x5"
+    
 
 class OctaminxRotations(Cube):
     def __init__(self) -> None:

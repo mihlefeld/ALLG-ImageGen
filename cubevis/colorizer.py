@@ -4,7 +4,7 @@ import pathlib
 from typing import Dict, List
 from scipy.spatial.transform import Rotation
 from collections import defaultdict
-from .cube import Cube, Megaminx, Skewb, TwoByTwo, ThreeByThree, Pyraminx, Octaminx, OctaminxRotations
+from .cube import Cube, Megaminx, Skewb, TwoByTwo, ThreeByThree, Pyraminx, Octaminx, FiveByFive
 
 colors = {
     "white": "#fafafa",
@@ -51,9 +51,11 @@ class BaseColorizer:
         pass
 
     def make_stickers_from_piece(self, piece) -> List[str]:
+        non_num_piece = "".join([c for c in piece if not c.isnumeric()])
+        last_number = "".join([c for c in piece if c.isnumeric()])
         stickers = []
-        for firstFace in piece:
-            stickers.append(firstFace + "".join(sorted([f for f in piece if f != firstFace])))
+        for firstFace in non_num_piece:
+            stickers.append(firstFace + "".join(sorted([f for f in non_num_piece if f != firstFace])) + last_number)
         return stickers
     
     def get_override_colors(self) -> Dict[str, str]:
@@ -64,12 +66,11 @@ class BaseColorizer:
         sticker_positions_to_color = {}
         face_to_color = self.get_face_to_color()
         for position, (piece, ori) in self.cube.pieces.items():
+            non_numeric_piece = "".join([c for c in piece if not c.isnumeric()])
             sticker_positions = self.make_stickers_from_piece(position)
-            for i in range(len(piece)):
-                ival = (i + ori) % len(piece)
-                if piece[i].isnumeric(): # special case for octaminx center pieces
-                    continue
-                sticker_positions_to_color[sticker_positions[ival]] = face_to_color[piece[i]]
+            for i in range(len(non_numeric_piece)):
+                ival = (i + ori) % len(non_numeric_piece)
+                sticker_positions_to_color[sticker_positions[ival]] = face_to_color[non_numeric_piece[i]]
         for k, v in self.get_override_colors().items():
             sticker_positions_to_color[k] = v
         return sticker_positions_to_color
@@ -109,7 +110,7 @@ f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {self.width} {self.heig
         return rotation + scramble
 
     def scramble(self, moves, path=None):
-        self.cube.scramble(" ".join([self.pre_moves, moves]))
+        self.cube.scramble(" ".join([self.pre_moves, moves]).strip())
         svg = self.create_svg()
         if path is None:
             return svg
@@ -655,6 +656,83 @@ class OctaminxOLPColorizer(OctaminxL3TColorizer):
             "W": colors["white"]
         }
 
+class FiveByFiveColorizer(BaseColorizer):
+    def __init__(self, pre_moves="") -> None:
+        super().__init__(FiveByFive(), pre_moves)
+        self.vertices = []
+        for i in range(8):
+            for j in range(8):
+                self.vertices.append([j, i])
+        self.vertices = np.array(self.vertices)
+        self.normalize_vertices()
+
+    def get_polygons(self):
+        return {
+            "UFL": [1, 2, 10, 9],
+            "UF2": [2, 3, 11, 10],
+            "UF": [3, 4, 12, 11],
+            "UF1": [4, 5, 13, 12],
+            "UFR": [5, 6, 14, 13],
+
+            "LFU": [8, 9, 17, 16],
+            "FLU": [9, 10, 18, 17],
+            "FU2": [10, 11, 19, 18],
+            "FU": [11, 12, 20, 19],
+            "FU1": [12, 13, 21, 20],
+            "FRU": [13, 14, 22, 21],
+            "RFU": [14, 15, 23, 22],
+
+            "LF2": [16, 17, 25, 24],
+            "FL2": [17, 18, 26, 25],
+            "F1": [18, 19, 27, 26],
+            "F2": [19, 20, 28, 27],
+            "F3": [20, 21, 29, 28],
+            "FR1": [21, 22, 30, 29],
+            "RF1": [22, 23, 31, 30],
+
+            "LF": [24, 25, 33, 32],
+            "FL": [25, 26, 34, 33],
+            "F8": [26, 27, 35, 34],
+            "F":  [27, 28, 36, 35],
+            "F4": [28, 29, 37, 36],
+            "FR": [29, 30, 38, 37],
+            "RF": [30, 31, 39, 38],
+
+            "LF1": [32, 33, 41, 40],
+            "FL1": [33, 34, 42, 41],
+            "F7":  [34, 35, 43, 42],
+            "F6":  [35, 36, 44, 43],
+            "F5":  [36, 37, 45, 44],
+            "FR2": [37, 38, 46, 45],
+            "RF2": [38, 39, 47, 46],
+
+            "LDF": [40, 41, 49, 48],
+            "FDL": [41, 42, 50, 49],
+            "FD1": [42, 43, 51, 50],
+            "FD":  [43, 44, 52, 51],
+            "FD2": [44, 45, 53, 52],
+            "FDR": [45, 46, 54, 53],
+            "RDF": [46, 47, 55, 54],
+
+            "DFL": [49, 50, 58, 57],
+            "DF1": [50, 51, 59, 58],
+            "DF":  [51, 52, 60, 59],
+            "DF2": [52, 53, 61, 60],
+            "DFR": [53, 54, 62, 61]
+    }
+    
+    def get_face_to_color(self) -> Dict[str, str]:
+        return {
+            "U": colors["white"],
+            "F": colors["green"],
+            "R": colors["red"],
+            "B": colors["blue"],
+            "L": colors["orange"],
+            "D": colors["yellow"]
+        }
+    
+
+
 def get_colorizer(name) -> BaseColorizer:
     """Returns the colorizer given as string implemented colorizers are:
     Megaminx, Megaminx-OLL, Pyraminx, Skewb, 3x3, 3x3-OLL, 2x2"""
@@ -665,7 +743,8 @@ def get_colorizer(name) -> BaseColorizer:
         "Pyraminx": PyraminxColorizer,
         "Skewb": SkewbColorizer,
         "Skewb-L2L": SkewbL2LColorizer,
-        "3x3": ThreeByThree,
+        "5x5": FiveByFiveColorizer,
+        "3x3": ThreeByThreeColorizer,
         "3x3-LL": ThreeByThreeLLColorizer,
         "3x3-OLL": ThreeByThreeOLLColorizer,
         "3x3-CMLL": ThreeByThreeCMLLColorizer,

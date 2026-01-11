@@ -17,8 +17,24 @@ def naive_invert(scramble: str):
         inverted.append(move + "'" if move[-1] != "'" else move[:-1])
     return " ".join(inverted)
 
+def translate_scamble(scramble: str):
+    """
+    r -> R
+    l -> L
+    B -> U
+    b -> b
+    """
+    return (
+        scramble
+        .replace("r", "R")
+        .replace("l", "L")
+        .replace("B", "U")
+        .replace("b", "B")
+        )
+
 def get_jsons(scrambles_path: Path, csv_path: Path, output_dir: Path, filter: list[str] = []):
-    needs_invert = "Octaminx" in csv_path.as_posix()
+    needs_invert = "octaminx" in csv_path.as_posix().lower()
+    needs_translate = "skewb" in csv_path.as_posix().lower()
     output_dir.mkdir(parents=True, exist_ok=True)
     algs_info = defaultdict(dict)
     groups_info = defaultdict(list)
@@ -63,6 +79,8 @@ def get_jsons(scrambles_path: Path, csv_path: Path, output_dir: Path, filter: li
         case_scrambles = [re.sub(r'\([^\)]*\) ', '', scr) for scr in case_scrambles if type(scr) == str]
         if needs_invert:
             case_scrambles = list(map(naive_invert, case_scrambles))
+        if needs_translate:
+            case_scrambles = list(map(translate_scamble, case_scrambles))
         scrambles[case_id] = case_scrambles
         algs_info[case_id]['s'] = case_scrambles[0]
         case_id += 1 

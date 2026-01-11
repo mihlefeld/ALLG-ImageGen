@@ -116,7 +116,7 @@ def gen_images(puzzle_name: str, input_path: Path, output_path: Path, filter: Li
         filename =  output_path / f"{case_id}.svg"
         alg = clean_alg(row["Algs"].split("\n")[0], puzzle.cube)
         if "Skewb" in puzzle_name:
-            alg = clean_alg([alg for alg in row["Algs"].split("\n") if "H" not in alg and "S" not in alg][0])
+            alg = clean_alg([alg for alg in row["Algs"].split("\n") if "H" not in alg and "S" not in alg][0], puzzle.cube)
         if "Octaminx" in puzzle_name:
             alg = clean_alg_octaminx(alg)
         
