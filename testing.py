@@ -3,7 +3,7 @@ from cubevis.colorizer import *
 from pathlib import Path
 
 def testing():
-    colorizers = [FiveByFiveColorizer()]
+    colorizers = [ThreeByThreeZBLSColorizer()]
     for colorizer in colorizers:
         moves = list(colorizer.cube.moves.keys())
         colorizer_name = type(colorizer).__name__

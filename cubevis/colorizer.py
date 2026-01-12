@@ -4,7 +4,7 @@ import pathlib
 from typing import Dict, List
 from scipy.spatial.transform import Rotation
 from collections import defaultdict
-from .cube import Cube, Megaminx, Skewb, TwoByTwo, ThreeByThree, Pyraminx, Octaminx, FiveByFive
+from cubevis.cube import Cube, Megaminx, Skewb, TwoByTwo, ThreeByThree, Pyraminx, Octaminx, FiveByFive
 
 colors = {
     "white": "#fafafa",
@@ -388,7 +388,7 @@ class TwoByTwoColorizer(BaseColorizer):
 class TwoByTwoLLColorizer(TwoByTwoColorizer):
     def __init__(self) -> None:
         super().__init__("z2")
-    
+
 class ThreeByThreeColorizer(BaseColorizer):
     def __init__(self, pre_moves="") -> None:
         super().__init__(ThreeByThree(), pre_moves)
@@ -471,6 +471,84 @@ class ThreeByThreeCMLLColorizer(ThreeByThreeLLColorizer):
             "UB": colors["ignore"],
             "BU": colors["ignore"],
             "U": colors["ignore"]
+        }
+    
+class ThreeByThreeZBLSColorizer(ThreeByThreeColorizer):
+    def __init__(self):
+        super().__init__("x2")
+        points = [
+            [0.00, 0.00],
+            [0.00, -100.00],
+            [-86.60, -50.00],
+            [-86.60, 50.00],
+            [-0.00, 100.00],
+            [86.60, 50.00],
+            [86.60, -50.00],
+            [-57.74, -66.67],
+            [-28.87, -83.33],
+            [28.87, -83.33],
+            [57.74, -66.67],
+            [0.00, -33.33],
+            [-28.87, -50.00],
+            [28.87, -50.00],
+            [0.00, -66.67],
+            [86.60, -16.67],
+            [86.60, 16.67],
+            [57.74, 66.67],
+            [28.87, 83.33],
+            [28.87, 16.67],
+            [57.74, 0.00],
+            [28.87, 50.00],
+            [57.74, 33.33],
+            [28.87, -16.67],
+            [57.74, -33.33],
+            [-86.60, -16.67],
+            [-86.60, 16.67],
+            [-0.00, 33.33],
+            [-0.00, 66.67],
+            [-28.87, 83.33],
+            [-57.74, 66.67],
+            [-57.74, -0.00],
+            [-28.87, 16.67],
+            [-57.74, 33.33],
+            [-28.87, 50.00],
+            [-57.74, -33.33],
+            [-28.87, -16.67],
+        ]
+        self.vertices = np.array(points)
+        self.vertices[:, 0] *= -1
+        self.normalize_vertices()
+
+
+    def get_polygons(self):
+        return {
+            "UBL": [9, 1, 8, 14],
+            "UL": [9, 14, 13, 10],
+            "UFL": [10, 13, 24, 6],
+            "UF": [24, 13, 11, 23],
+            "U": [13, 14, 12, 11],
+            "UB": [14, 8, 7, 12],
+            "UBR": [12, 7, 2, 35],
+            "UR": [11, 12, 35, 36],
+            "UFR": [23, 11, 36, 0],
+            "FRU": [23, 0, 27, 19],
+            "FU": [24, 23, 19, 20],
+            "FLU": [6, 24, 20, 15],
+            "FL": [15, 20, 22, 16],
+            "F": [20, 19, 21, 22],
+            "FR": [19, 27, 28, 21],
+            "FDR": [21, 28, 4, 18],
+            "FD": [22, 21, 18, 17],
+            "FDL": [16, 22, 17, 5],
+            "RFU": [0, 36, 32, 27],
+            "RU": [36, 35, 31, 32],
+            "RBU": [35, 2, 25, 31],
+            "RB": [31, 25, 26, 33],
+            "R": [32, 31, 33, 34],
+            "RF": [27, 32, 34, 28],
+            "RDF": [28, 34, 29, 4],
+            "RD": [34, 33, 30, 29],
+            "RBD": [33, 26, 3, 30],
         }
     
 class PyraminxColorizer(BaseColorizer):
