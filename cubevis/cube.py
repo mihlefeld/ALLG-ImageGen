@@ -69,11 +69,11 @@ class Cube:
             return
         if m not in self.moves:
             move_count = 1
-            for num in re.findall(r"\d", m):
+            for num in re.findall(r"[\d]?[A-z]+([\d]+)", m.replace("'", "")):
                 move_count = int(num)
             for mod in re.findall(r"'", m):
                 move_count *= -1
-            move_name = re.search(r"[A-z]+", m).group(0)
+            move_name = re.search(r"[\d]?[A-z]+", m).group(0)
             if move_name not in self.max_cycles:
                 print(f"Illegal move \"{move_name}\", ignoring")
                 return
@@ -412,7 +412,22 @@ z: (UF+1 FR+1 DF+1 FL+1) (UL+1 UR+1 DR+1 DL+1) (UB+1 BR+1 DB+1 BL+1) (URF+2 DFR+
         
     def getName(self):
         return "5x5"
-    
+"""Equivalences and unique orientations
+2: UF1 UF2 UR1 UR2 UB1 UB2 UL1 UL2 DF1 DF2 DB1 DB2 DR1 DR2 DL1 DL2 FR1 FR2 FL1 FL2 BR1 BR2 BL1 BL2
+{F1 F3 F5 F7}
+{F2 F4 F6 F8}
+{U1 U3 U5 U7}
+{U2 U4 U6 U8}
+{R1 R3 R5 R7}
+{R2 R4 R6 R8}
+{L1 L3 L5 L7}
+{L2 L4 L6 L8}
+{D1 D3 D5 D7}
+{D2 D4 D6 D8}
+{B1 B3 B5 B7}
+{B2 B4 B6 B8}
+{URF UFL ULB UBR DFR DLF DBL DRB}
+"""    
 
 class OctaminxRotations(Cube):
     def __init__(self) -> None:

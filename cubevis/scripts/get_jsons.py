@@ -17,6 +17,14 @@ def naive_invert(scramble: str):
         inverted.append(move + "'" if move[-1] != "'" else move[:-1])
     return " ".join(inverted)
 
+def remove_aufs(scramble: str):
+    moves = scramble.split()
+    if "U" in moves[0]:
+        moves = moves[1:]
+    if "U" in moves[-1]:
+        moves = moves[:-1]
+    return " ".join(moves)
+
 def translate_scamble(scramble: str):
     """
     r -> R
@@ -33,6 +41,7 @@ def translate_scamble(scramble: str):
         )
 
 def get_jsons(scrambles_path: Path, csv_path: Path, output_dir: Path, filter: list[str] = []):
+    cut_auf_override = "5x5" in csv_path.as_posix().lower()
     needs_invert = "octaminx" in csv_path.as_posix().lower()
     needs_translate = "skewb" in csv_path.as_posix().lower()
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -67,11 +76,10 @@ def get_jsons(scrambles_path: Path, csv_path: Path, output_dir: Path, filter: li
     
     scramble_df = pd.read_excel(scrambles_path, engine="openpyxl")
     case_id = 1
-    for c in scramble_df.columns:
-        number = int(c.split()[-1])
-        if number % 2 != 1:
+    for i, c in enumerate(scramble_df.columns):
+        if i % 2 != 1:
             continue
-        if number // 2 not in filter_set:
+        if i // 2 not in filter_set:
             continue
         case_scrambles = [scr for scr in scramble_df[c][1:] if type(scr) == str]
         if len(case_scrambles) < 1:
@@ -81,7 +89,9 @@ def get_jsons(scrambles_path: Path, csv_path: Path, output_dir: Path, filter: li
             case_scrambles = list(map(naive_invert, case_scrambles))
         if needs_translate:
             case_scrambles = list(map(translate_scamble, case_scrambles))
-        scrambles[case_id] = case_scrambles
+        if cut_auf_override:
+            case_scrambles = list(map(remove_aufs, case_scrambles))
+        scrambles[case_id] = list(set(case_scrambles))
         algs_info[case_id]['s'] = case_scrambles[0]
         case_id += 1 
 

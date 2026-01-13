@@ -92,7 +92,7 @@ f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {self.width} {self.heig
         return svg
     
     def inverse(self, moves, path=None):
-        moves = re.findall(r"[A-z]+'?\d?'?", moves)
+        moves = re.findall(r"\d?[A-z]+'?\d?'?", moves)
         rotations = []
         inverted_moves = []
         for move in moves[::-1]:
@@ -809,7 +809,43 @@ class FiveByFiveColorizer(BaseColorizer):
             "D": colors["yellow"]
         }
     
+class FiveByFiveL2EColorizer(FiveByFiveColorizer):
+    def __init__(self):
+        super().__init__("x2")
 
+    def get_override_colors(self):
+        return {
+            "UF1": colors["ignore"],
+            "UF2": colors["ignore"],
+            "UF": colors["ignore"],
+            "FU1": colors["ignore"],
+            "FU2": colors["ignore"],
+            "FU": colors["ignore"],
+            "UFR": colors["ignore"],
+            "RFU": colors["ignore"],
+            "FRU": colors["ignore"],
+            "UFL": colors["ignore"],
+            "LFU": colors["ignore"],
+            "FLU": colors["ignore"],
+            "DFR": colors["ignore"],
+            "FDR": colors["ignore"],
+            "RDF": colors["ignore"],
+            "DFL": colors["ignore"],
+            "FDL": colors["ignore"],
+            "LDF": colors["ignore"],
+            "F1": colors["ignore"],
+            "F2": colors["ignore"],
+            "F3": colors["ignore"],
+            "F4": colors["ignore"],
+            "F5": colors["ignore"],
+            "F6": colors["ignore"],
+            "F7": colors["ignore"],
+            "F8": colors["ignore"],
+            "F": colors["ignore"],
+            "FD": colors["ignore"],
+            "FD1": colors["ignore"],
+            "FD2": colors["ignore"],
+        }
 
 def get_colorizer(name) -> BaseColorizer:
     """Returns the colorizer given as string implemented colorizers are:
@@ -822,6 +858,7 @@ def get_colorizer(name) -> BaseColorizer:
         "Skewb": SkewbColorizer,
         "Skewb-L2L": SkewbL2LColorizer,
         "5x5": FiveByFiveColorizer,
+        "5x5-L2E": FiveByFiveL2EColorizer,
         "3x3": ThreeByThreeColorizer,
         "3x3-LL": ThreeByThreeLLColorizer,
         "3x3-OLL": ThreeByThreeOLLColorizer,
