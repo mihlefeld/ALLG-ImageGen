@@ -1,6 +1,6 @@
 import argparse
 from cubevis import get_colorizer
-from cubevis.colorizer import OctaminxColorizer, BaseColorizer
+from cubevis.colorizer import OctaminxColorizer, ThreeByThreeZBLSColorizer, BaseColorizer
 from cubevis.cube import OctaminxRotations
 from typing import List
 import json
@@ -122,12 +122,12 @@ def gen_images(puzzle_name: str, input_path: Path, output_path: Path, filter: Li
         
         puzzle.inverse(alg, filename)
         svg_strings[case_id] = puzzle.create_svg()
-        if isinstance(puzzle, OctaminxColorizer):
+        if isinstance(puzzle, OctaminxColorizer) or isinstance(puzzle, ThreeByThreeZBLSColorizer):
             alg = puzzle.inverse(alg)
         else:
             puzzle.cube.scramble(alg)
         ref_rot = puzzle.cube.to_reference_rotation()
-        if ref_rot != "":
+        if ref_rot != "" and not isinstance(puzzle, ThreeByThreeZBLSColorizer):
             alg += " " + ref_rot
         batch_solver_inputs.append(alg)
         case_id += 1

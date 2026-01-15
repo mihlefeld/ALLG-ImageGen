@@ -61,16 +61,25 @@ class BaseColorizer:
     def get_override_colors(self) -> Dict[str, str]:
         """Return a dictionary that maps from stickers to colors which defines the stickers that should always be a certain color. Use this to indicate parts of the visualization that can be ignored."""
         return dict()
+    
+    def get_override_pieces(self) -> Dict[str, str]:
+        """Return a dictionary that maps from pieces in a given orientation to colors which defines an override for stickers of a piece that sholud be ignored. Use this if the location of ignored stickers isn't always the same."""
+        return dict()
 
     def get_sticker_colors_from_cube(self) -> Dict[str, str]:
         sticker_positions_to_color = {}
         face_to_color = self.get_face_to_color()
+        override_pieces = self.get_override_pieces()
         for position, (piece, ori) in self.cube.pieces.items():
             non_numeric_piece = "".join([c for c in piece if not c.isnumeric()])
+            piece_stickers = self.make_stickers_from_piece(non_numeric_piece)
             sticker_positions = self.make_stickers_from_piece(position)
             for i in range(len(non_numeric_piece)):
                 ival = (i + ori) % len(non_numeric_piece)
-                sticker_positions_to_color[sticker_positions[ival]] = face_to_color[non_numeric_piece[i]]
+                if piece_stickers[i] in override_pieces:
+                    sticker_positions_to_color[sticker_positions[ival]] = override_pieces[piece_stickers[i]]
+                else:
+                    sticker_positions_to_color[sticker_positions[ival]] = face_to_color[non_numeric_piece[i]]
         for k, v in self.get_override_colors().items():
             sticker_positions_to_color[k] = v
         return sticker_positions_to_color
@@ -551,6 +560,35 @@ class ThreeByThreeZBLSColorizer(ThreeByThreeColorizer):
             "RBD": [33, 26, 3, 30],
         }
     
+    def get_override_pieces(self):
+        return {
+            "FD": colors["ignore"],
+            "RD": colors["ignore"],
+            "BD": colors["ignore"],
+            "LD": colors["ignore"],
+
+            "RDF": colors["ignore"],
+            "FDR": colors["ignore"],
+            "DFR": colors["ignore"],
+            
+            "LDF": colors["ignore"],
+            "FDL": colors["ignore"],
+            "DFL": colors["ignore"],
+
+            "LBD": colors["ignore"],
+            "BDL": colors["ignore"],
+            "DBL": colors["ignore"],
+
+            "RBD": colors["ignore"],
+            "BDR": colors["ignore"],
+            "DBR": colors["ignore"],
+        }
+"""
+Batch Solver equivalences:
+{UF UR UB UL}
+1: URF UBR ULB UFL 
+"""    
+    
 class PyraminxColorizer(BaseColorizer):
     def __init__(self) -> None:
         super().__init__(Pyraminx())
@@ -826,6 +864,7 @@ def get_colorizer(name) -> BaseColorizer:
         "3x3-LL": ThreeByThreeLLColorizer,
         "3x3-OLL": ThreeByThreeOLLColorizer,
         "3x3-CMLL": ThreeByThreeCMLLColorizer,
+        "3x3-ZBLS": ThreeByThreeZBLSColorizer,
         "2x2": TwoByTwoColorizer,
         "2x2-LL": TwoByTwoLLColorizer,
         "Octaminx": OctaminxColorizer,

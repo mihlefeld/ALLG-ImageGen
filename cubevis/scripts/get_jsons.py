@@ -33,7 +33,7 @@ def translate_scamble(scramble: str):
         )
 
 def get_jsons(scrambles_path: Path, csv_path: Path, output_dir: Path, filter: list[str] = []):
-    needs_invert = "octaminx" in csv_path.as_posix().lower()
+    needs_invert = "octaminx" in csv_path.as_posix().lower() or "zbls" in csv_path.as_posix().lower()
     needs_translate = "skewb" in csv_path.as_posix().lower()
     output_dir.mkdir(parents=True, exist_ok=True)
     algs_info = defaultdict(dict)
