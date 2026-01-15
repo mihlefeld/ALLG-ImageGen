@@ -76,10 +76,13 @@ class BaseColorizer:
             sticker_positions = self.make_stickers_from_piece(position)
             for i in range(len(non_numeric_piece)):
                 ival = (i + ori) % len(non_numeric_piece)
-                if piece_stickers[i] in override_pieces:
-                    sticker_positions_to_color[sticker_positions[ival]] = override_pieces[piece_stickers[i]]
-                else:
-                    sticker_positions_to_color[sticker_positions[ival]] = face_to_color[non_numeric_piece[i]]
+                try:
+                    if piece_stickers[i] in override_pieces:
+                        sticker_positions_to_color[sticker_positions[ival]] = override_pieces[piece_stickers[i]]
+                    else:
+                        sticker_positions_to_color[sticker_positions[ival]] = face_to_color[non_numeric_piece[i]]
+                except:
+                    pass
         for k, v in self.get_override_colors().items():
             sticker_positions_to_color[k] = v
         return sticker_positions_to_color
@@ -96,7 +99,11 @@ f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {self.width} {self.heig
         polygons = self.get_polygons()
         for sticker_name, polygon_picking in polygons.items():
             poygon_str = " ".join([f"{a:.2f} {b:.2f}" for (a, b) in self.vertices[polygon_picking]])
-            svg += f"<polygon fill='{sticker_colors[sticker_name]}' points='{poygon_str}'/>\n"
+            try:
+                svg += f"<polygon fill='{sticker_colors[sticker_name]}' points='{poygon_str}'/>\n"
+            except:
+                #TODO: log warning
+                pass
         svg += "</svg>"
         return svg
     
@@ -941,8 +948,23 @@ class SquareOneColorizer(BaseColorizer):
         self.vertices = np.array(points)
         down_vert = np.array(points)
         down_vert[:, 1] += 1.1 * (np.max(self.vertices[:, 1]) - np.min(self.vertices[:, 1]))
-        self.vertices = np.concat([self.vertices, down_vert])
+        self.vertices = np.concatenate([self.vertices, down_vert])
         self.normalize_vertices()
+
+    def inverse(self, moves, path=None):
+        moves = self.cube.to_self_notation(moves)
+        moves = re.findall(r"\d?[A-z]+'?\d?'?", moves)
+        inverted_moves = []
+        for move in moves[::-1]:
+            inverted = move[:-1] if move[-1] == "'" else move + "'"
+            inverted_moves.append(inverted)
+        scramble = " ".join(inverted_moves)
+        self.cube.move(scramble)
+        svg = self.create_svg()
+        if path is not None:
+            with open(path, 'w') as file:
+                file.write(svg)
+        return scramble
 
     def get_polygons(self):
         return {

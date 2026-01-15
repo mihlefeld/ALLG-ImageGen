@@ -454,7 +454,7 @@ D: (DLF DFR DRB DBL) (DF DR DB DL) (X5 X6 X7 X8)""")
                 if down != 0:
                     part_moves.append(f"d{down}" if down <= 6 else f"d{12 - down}'")
                 transcoded.append(" ".join(part_moves))
-            return " s ".join(transcoded).strip()
+            return " s ".join(transcoded).strip().replace("1", "")
 
     def scramble(self, moves):
         return super().scramble(self.to_self_notation(moves))
