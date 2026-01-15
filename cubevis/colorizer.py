@@ -4,7 +4,7 @@ import pathlib
 from typing import Dict, List
 from scipy.spatial.transform import Rotation
 from collections import defaultdict
-from cubevis.cube import Cube, Megaminx, Skewb, TwoByTwo, ThreeByThree, Pyraminx, Octaminx, FiveByFive
+from cubevis.cube import Cube, Megaminx, Skewb, TwoByTwo, ThreeByThree, Pyraminx, Octaminx, FiveByFive, SquareOne
 
 colors = {
     "white": "#fafafa",
@@ -101,7 +101,7 @@ f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {self.width} {self.heig
         return svg
     
     def inverse(self, moves, path=None):
-        moves = re.findall(r"[A-z]+'?\d?'?", moves)
+        moves = re.findall(r"\d?[A-z]+'?\d?'?", moves)
         rotations = []
         inverted_moves = []
         for move in moves[::-1]:
@@ -847,6 +847,158 @@ class FiveByFiveColorizer(BaseColorizer):
             "D": colors["yellow"]
         }
     
+class FiveByFiveL2EColorizer(FiveByFiveColorizer):
+    def __init__(self):
+        super().__init__("x2")
+
+    def get_override_colors(self):
+        return {
+            "UF1": colors["ignore"],
+            "UF2": colors["ignore"],
+            "UF": colors["ignore"],
+            "FU1": colors["ignore"],
+            "FU2": colors["ignore"],
+            "FU": colors["ignore"],
+            "UFR": colors["ignore"],
+            "RFU": colors["ignore"],
+            "FRU": colors["ignore"],
+            "UFL": colors["ignore"],
+            "LFU": colors["ignore"],
+            "FLU": colors["ignore"],
+            "DFR": colors["ignore"],
+            "FDR": colors["ignore"],
+            "RDF": colors["ignore"],
+            "DFL": colors["ignore"],
+            "FDL": colors["ignore"],
+            "LDF": colors["ignore"],
+            "F1": colors["ignore"],
+            "F2": colors["ignore"],
+            "F3": colors["ignore"],
+            "F4": colors["ignore"],
+            "F5": colors["ignore"],
+            "F6": colors["ignore"],
+            "F7": colors["ignore"],
+            "F8": colors["ignore"],
+            "F": colors["ignore"],
+            "FD": colors["ignore"],
+            "FD1": colors["ignore"],
+            "FD2": colors["ignore"],
+        }
+
+class SquareOneColorizer(BaseColorizer):
+    def __init__(self):
+        super().__init__(SquareOne())
+        points = [
+            (0.00, 191.42),
+            (0.00, 120.71),
+            (0.00, 70.71),
+            (0.00, 0.00),
+            (70.71, 0.00),
+            (120.71, 0.00),
+            (191.42, 0.00),
+            (191.42, 70.71),
+            (191.42, 120.71),
+            (191.42, 191.42),
+            (120.71, 191.42),
+            (70.71, 191.42),
+            (93.71, 103.37),
+            (92.09, 99.33),
+            (88.05, 97.71),
+            (72.74, 101.71),
+            (74.65, 95.71),
+            (72.74, 89.71),
+            (88.05, 93.71),
+            (92.09, 92.09),
+            (93.71, 88.05),
+            (89.71, 72.74),
+            (95.71, 74.65),
+            (101.71, 72.74),
+            (97.71, 88.05),
+            (99.33, 92.09),
+            (103.37, 93.71),
+            (118.68, 89.71),
+            (116.77, 95.71),
+            (118.68, 101.71),
+            (103.37, 97.71),
+            (99.33, 99.33),
+            (97.71, 103.37),
+            (101.71, 118.68),
+            (95.71, 116.77),
+            (89.71, 118.68),
+            (-38.28, 229.71),
+            (-38.28, 130.71),
+            (-38.28, 60.71),
+            (-38.28, -38.28),
+            (60.71, -38.28),
+            (130.71, -38.28),
+            (229.71, -38.28),
+            (229.71, 60.71),
+            (229.71, 130.71),
+            (229.71, 229.71),
+            (130.71, 229.71),
+            (60.71, 229.71),
+        ]
+        self.vertices = np.array(points)
+        down_vert = np.array(points)
+        down_vert[:, 1] += 1.1 * (np.max(self.vertices[:, 1]) - np.min(self.vertices[:, 1]))
+        self.vertices = np.concat([self.vertices, down_vert])
+        self.normalize_vertices()
+
+    def get_polygons(self):
+        return {
+            "UFL": [0, 1, 14, 13, 12, 11],
+            "UL": [1, 2, 17, 16, 15],
+            "UBL": [2, 3, 4, 20, 19, 18],
+            "UB": [4, 5, 23, 22, 21],
+            "UBR": [5, 6, 7, 26, 25, 24],
+            "UR": [7, 8, 29, 28, 27],
+            "UFR": [8, 9, 10, 32, 31, 30],
+            "UF": [10, 11, 35, 34, 33],
+            "LFU": [36, 37, 1, 0],
+            "LU": [37, 38, 2, 1],
+            "LBU": [38, 39, 3, 2],
+            "BLU": [39, 40, 4, 3],
+            "BU": [40, 41, 5, 4],
+            "BRU": [41, 42, 6, 5],
+            "RBU": [42, 43, 7, 6],
+            "RU": [43, 44, 8, 7],
+            "RFU": [44, 45, 9, 8],
+            "FRU": [45, 46, 10, 9],
+            "FU": [46, 47, 11, 10],
+            "FLU": [47, 36, 0, 11],
+
+            "DFL": [0+48, 1+48, 14+48, 13+48, 12+48, 11+48],
+            "DL": [1+48, 2+48, 17+48, 16+48, 15+48],
+            "DBL": [2+48, 3+48, 4+48, 20+48, 19+48, 18+48],
+            "DB": [4+48, 5+48, 23+48, 22+48, 21+48],
+            "DBR": [5+48, 6+48, 7+48, 26+48, 25+48, 24+48],
+            "DR": [7+48, 8+48, 29+48, 28+48, 27+48],
+            "DFR": [8+48, 9+48, 10+48, 32+48, 31+48, 30+48],
+            "DF": [10+48, 11+48, 35+48, 34+48, 33+48],
+            "LDF": [36+48, 37+48, 1+48, 0+48],
+            "LD": [37+48, 38+48, 2+48, 1+48],
+            "LBD": [38+48, 39+48, 3+48, 2+48],
+            "FDL": [39+48, 40+48, 4+48, 3+48],
+            "FD": [40+48, 41+48, 5+48, 4+48],
+            "FDR": [41+48, 42+48, 6+48, 5+48],
+            "RBD": [42+48, 43+48, 7+48, 6+48],
+            "RD": [43+48, 44+48, 8+48, 7+48],
+            "RDF": [44+48, 45+48, 9+48, 8+48],
+            "BDR": [45+48, 46+48, 10+48, 9+48],
+            "BD": [46+48, 47+48, 11+48, 10+48],
+            "BDL": [47+48, 36+48, 0+48, 11+48],
+        }
+
+    def get_face_to_color(self):
+        return {
+            "U": colors["black"],
+            "F": colors["red"],
+            "R": colors["green"],
+            "L": colors["blue"],
+            "B": colors["orange"],
+            "D": colors["white"],
+            "X": colors["ignore"]
+        }
 
 
 def get_colorizer(name) -> BaseColorizer:
@@ -860,6 +1012,7 @@ def get_colorizer(name) -> BaseColorizer:
         "Skewb": SkewbColorizer,
         "Skewb-L2L": SkewbL2LColorizer,
         "5x5": FiveByFiveColorizer,
+        "5x5-L2E": FiveByFiveL2EColorizer,
         "3x3": ThreeByThreeColorizer,
         "3x3-LL": ThreeByThreeLLColorizer,
         "3x3-OLL": ThreeByThreeOLLColorizer,
@@ -869,4 +1022,5 @@ def get_colorizer(name) -> BaseColorizer:
         "2x2-LL": TwoByTwoLLColorizer,
         "Octaminx": OctaminxColorizer,
         "Octaminx-L3T": OctaminxL3TColorizer,
+        "Square-1": SquareOneColorizer
     }[name]()
