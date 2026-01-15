@@ -15,9 +15,13 @@ def testing():
     #         os.makedirs(moves_dir, exist_ok=True)
     #         for n in range(1, colorizer.cube.max_cycles[move]):
     #             colorizer.scramble(move + str(n), moves_dir / f"{n}.svg")
-    ff = colorizers[0]
-    ff.scramble("x U r U2 x r U2 r U2' r' U2 l U2 3r' U2' r U2 r' U2' r' U x'", "test.svg")
-    ff.inverse("x U r U2 x r U2 r U2' r' U2 l U2 3r' U2' r U2 r' U2' r' U x'", "test-i.svg")
+    # ff = colorizers[0]
+    # ff.scramble("x U r U2 x r U2 r U2' r' U2 l U2 3r' U2' r U2 r' U2' r' U x'", "test.svg")
+    # ff.inverse("x U r U2 x r U2 r U2' r' U2 l U2 3r' U2' r U2 r' U2' r' U x'", "test-i.svg")
+
+    from cubevis.cube import SquareOne
+    sq = SquareOneColorizer()
+    sq.scramble("(1, 0) / (-1, -1) / (0, 1)", "test.svg")
 
 if __name__ == "__main__":
     testing()

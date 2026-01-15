@@ -50,8 +50,8 @@ class Cube:
             while not self.is_solved():
                 self.move(move)
                 cycles += 1
-                if cycles > 6:
-                    print(f"Takes more than 6 cycles to go back to solved, likely an error in a move definition {move} {self.getName()}", file=sys.stderr)
+                if cycles > 12:
+                    print(f"Takes more than 12 cycles to go back to solved, likely an error in a move definition {move} {self.getName()}", file=sys.stderr)
                     self.reset()
                     break
             self.max_cycles[move] = cycles
@@ -427,7 +427,40 @@ z: (UF+1 FR+1 DF+1 FL+1) (UL+1 UR+1 DR+1 DL+1) (UB+1 BR+1 DB+1 BL+1) (URF+2 DFR+
 {B1 B3 B5 B7}
 {B2 B4 B6 B8}
 {URF UFL ULB UBR DFR DLF DBL DRB}
-"""    
+"""
+
+class SquareOne(Cube):
+    def __init__(self) -> None:
+        super().__init__("""u: (UFL UL X1 ULB UB X2 UBR UR X3 URF UF X4)
+d: (DLF DF X5 DFR DR X6 DRB DB X7 DBL DL X8)
+s: (UF DRB) (URF X6) (X3 DR) (UR DFR) (UBR X5) (X2 DF)
+T: (UB DF) (X2 X5) (UBR DFR) (UR DR) (X3 X6) (URF DRB)
+t: (X2 X5) (UBR DFR) (UR DR) (X3 X6) (URF DRB) (UF DB)
+U: (UFL ULB UBR URF) (UL UB UR UF) (X1 X2 X3 X4)
+D: (DLF DFR DRB DBL) (DF DR DB DL) (X5 X6 X7 X8)""")
+        
+    def to_self_notation(self, moves: str):
+        if "/" in moves:
+            parts = moves.split("/")
+            transcoded = []
+            for part in parts:
+                if part.strip() == "":
+                    transcoded.append(" ")
+                    continue
+                top, down = [int(x.strip("() ")) % 12 for x in part.split(",")]
+                part_moves = []
+                if top != 0:
+                    part_moves.append(f"u{top}" if top <= 6 else f"u{12 - top}'")
+                if down != 0:
+                    part_moves.append(f"d{down}" if down <= 6 else f"d{12 - down}'")
+                transcoded.append(" ".join(part_moves))
+            return " s ".join(transcoded).strip()
+
+    def scramble(self, moves):
+        return super().scramble(self.to_self_notation(moves))
+
+    def getName(self):
+        return "Square-1"
 
 class OctaminxRotations(Cube):
     def __init__(self) -> None:
