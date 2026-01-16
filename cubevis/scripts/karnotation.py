@@ -118,6 +118,9 @@ move_map = OrderedDict({
     "AA": "/0,-3/2,2/0,-3/-2,4/",
     "aa": "/1,-2/2,2/1,-2/-4,2/",
     "TT": "/5,-1/-3,0/-2,-2/0,3/",
+    "U 30Adj": "/3,0/3,0/-1,-1/-2,1/",
+    "D' 30Adj": "/0,-3/3,0/-1,-1/-2,1/",
+    "bJJ+E2": "/-3,0/3,3/0,3/0,6/6,0"
     }
 )
 
@@ -163,29 +166,46 @@ def karnaukh_to_standard(alg):
 import polars as pl
 from pathlib import Path
 from cubevis.cube import SquareOne
-p = Path("data/tests/sq1/A")
-p.mkdir(exist_ok=True, parents=True)
-df = pl.read_csv("data/pbl_8.csv", infer_schema_length=1000)
 sq = SquareOneColorizer()
-batch_solver = []
-for i, (sample, ) in enumerate(df.select('Alg').filter(pl.col('Alg').is_not_null()).iter_rows()):
-    sample: str
-    sample = sample.splitlines()[0]
-    try:
-        print("==="*10 + f" {i} " + "==="*10)
-        print(sample)
-        alg = karnaukh_to_standard(sample)
-        sqc: SquareOne = sq.cube
-        alg = sq.fix_last_move_to_cubeshape(alg)
-        if alg[0:4] == "0,0 ":
-            alg = alg[4:]
-        if alg[-4:] == " 0,0":
-            alg = alg[:-4]
-        print(alg)
-        self_notation = sqc.to_self_notation(alg)
-        sq.scramble(alg, p / f"{i}.svg")
-        batch_solver.append(self_notation.split())
-    except Exception as e:
-        print(e)
-        print("FAILED")
-        print("==="*11)
+algs_data = {
+    "Algset": [],
+    "Group": [],
+    "Name": [],
+    "Algs": []
+}
+p = Path("data/Square-1 PBL Fixes.xlsx")
+tables = range(13, 41)
+for table_name in tables:
+    df = pl.read_excel(p, sheet_id=13, drop_empty_cols=True, drop_empty_rows=True)
+    alg_cols = [df.columns[3]]
+    angle_cols = [df.columns[2]]
+    name_col = df.columns[0]
+    if "Angle_1" in df.columns:
+        alg_cols.append(df.columns[4])
+        angle_cols.append(df.columns[5])
+    for alg_col, angle_col in zip(alg_cols, angle_cols):
+        for alg_name, alg_options, angles in df[name_col, alg_col, angle_col].filter(pl.col(alg_col).is_not_null()).iter_rows():
+            alg_options: str
+            angles: str
+            algs = [x for x in alg_options.splitlines() if x.strip() != ""]
+            angles = [x for x in angles.splitlines() if x.strip() != ""]
+            st_algs = []
+            for alg in algs:
+                try:
+                    st_alg = karnaukh_to_standard(alg)
+                    st_alg = sq.fix_last_move_to_cubeshape(st_alg)
+                except Exception as e:
+                    print(f"<<<<Failed for case {alg_col} {alg_name}:::\n{alg}\n::::with exception {e}>>>>")
+                    st_alg = e
+                st_algs.append(st_alg)
+            csv_algs = []
+            for alg, st_alg, angle in zip(algs, st_algs, angles):
+                csv_algs.append(f"[{angle}] {st_alg}")
+                csv_algs.append(f"[{angle}] {alg}")
+            algs_data["Algset"].append("PBL")
+            algs_data["Group"].append(alg_col)
+            algs_data["Name"].append(alg_name)
+            algs_data["Algs"].append("\n".join(csv_algs))
+
+total_df = pl.DataFrame(algs_data)
+total_df.write_csv("data/tests/sq1pbl.csv")
