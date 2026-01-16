@@ -138,7 +138,7 @@ for i in range(-5, 7, 1):
         escaped_dict[f"{i}{j}"] = f"{i},{j}"
 
 
-def to_karnaugh(alg):
+def karnaukh_to_standard(alg):
     alg = alg.strip()
     alg = multiple_replace(alg, end_of_string_map, escaped_dict)
     alg = multiple_replace(alg, ud_combinations)
@@ -165,7 +165,7 @@ from pathlib import Path
 from cubevis.cube import SquareOne
 p = Path("data/tests/sq1/A")
 p.mkdir(exist_ok=True, parents=True)
-df = pl.read_csv("data/pbl_9.csv", infer_schema_length=1000)
+df = pl.read_csv("data/pbl_8.csv", infer_schema_length=1000)
 sq = SquareOneColorizer()
 batch_solver = []
 for i, (sample, ) in enumerate(df.select('Alg').filter(pl.col('Alg').is_not_null()).iter_rows()):
@@ -174,16 +174,18 @@ for i, (sample, ) in enumerate(df.select('Alg').filter(pl.col('Alg').is_not_null
     try:
         print("==="*10 + f" {i} " + "==="*10)
         print(sample)
-        alg = to_karnaugh(sample)
-        print(alg)
+        alg = karnaukh_to_standard(sample)
         sqc: SquareOne = sq.cube
+        alg = sq.fix_last_move_to_cubeshape(alg)
+        if alg[0:4] == "0,0 ":
+            alg = alg[4:]
+        if alg[-4:] == " 0,0":
+            alg = alg[:-4]
+        print(alg)
         self_notation = sqc.to_self_notation(alg)
         sq.scramble(alg, p / f"{i}.svg")
         batch_solver.append(self_notation.split())
-    except:
+    except Exception as e:
+        print(e)
         print("FAILED")
         print("==="*11)
-
-longest = sorted(batch_solver, key=lambda x: len(x))
-for alg in longest:
-    print(" ".join(alg), len(alg))

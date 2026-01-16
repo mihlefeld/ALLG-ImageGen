@@ -965,6 +965,31 @@ class SquareOneColorizer(BaseColorizer):
             with open(path, 'w') as file:
                 file.write(svg)
         return scramble
+    
+    def fix_last_move_to_cubeshape(self, alg: str) -> str:
+        cube: SquareOne = self.cube
+        cube.scramble(alg)
+        cube_state = dict(cube.pieces)
+        move_parts = alg.split("/")
+        u_test_piece = cube_state["X4"][0]
+        d_test_piece = cube_state["X5"][0]
+
+        u, d = map(int, move_parts[-1].strip(" ()").split(","))
+        if "X" not in u_test_piece and len(u_test_piece) == 2:
+            u = (u - 1) % 3
+        if "X" not in u_test_piece and len(u_test_piece) == 3:
+            u = (u + 1) % 3
+        if "X" not in d_test_piece and len(d_test_piece) == 2:
+            d = (d - 1) % 3 
+        if "X" not in d_test_piece and len(d_test_piece) == 3:
+            d = (d + 1) % 3 
+        if u == 2:
+            u = -1
+        if d == 2:
+            d = -1
+        move_parts[-1] = f" {u},{d}"
+        cube.reset()
+        return "/".join(move_parts)
 
     def get_polygons(self):
         return {
