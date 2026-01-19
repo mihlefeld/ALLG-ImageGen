@@ -1,16 +1,20 @@
 import argparse
 from cubevis import get_colorizer
 from cubevis.colorizer import OctaminxColorizer, ThreeByThreeZBLSColorizer, BaseColorizer
-from cubevis.cube import OctaminxRotations
+from cubevis.cube import OctaminxRotations, SquareOne
 from typing import List
 import json
 import os
-import pandas as pd
+import polars as pl
 from pathlib import Path
 import re
 import numpy as np
 
 def clean_alg(alg: str, puzzle):
+    sq1_alg = re.match(r"\[[ A-Z]+\](/? [-?\d,-?\d /]+ -?\d,-?\d( /)?)", alg)
+    if sq1_alg:
+        return sq1_alg.group(1)
+
     cleaned_alg = re.sub(r"/\w+'?| \(Cancel\)| \(cancel\)|[\(\)]|[\]\[]", '', alg).strip()
     moves = []
     for move in cleaned_alg.split(' '):
@@ -107,10 +111,10 @@ def gen_images(puzzle_name: str, input_path: Path, output_path: Path, filter: Li
     puzzle: BaseColorizer = get_colorizer(puzzle_name)
     os.makedirs(output_path, exist_ok=True)
     batch_solver_inputs = []
-    df = pd.read_csv(input_path)
-    case_id = 1
+    df = (pl.read_csv(input_path).filter(pl.col('Algs').is_not_null(), pl.col('Algs') != ""))
+    case_id = 1 
     svg_strings = dict()
-    for i, row in df.iterrows():
+    for i, row in enumerate(df.filter(pl.col("Algs").is_not_null(), (pl.col("Algs") != "")).iter_rows(named=True)):
         if len(filter) > 0 and row["Algset"] not in filter:
             continue
         filename =  output_path / f"{case_id}.svg"
@@ -129,17 +133,20 @@ def gen_images(puzzle_name: str, input_path: Path, output_path: Path, filter: Li
         ref_rot = puzzle.cube.to_reference_rotation()
         if ref_rot != "" and not isinstance(puzzle, ThreeByThreeZBLSColorizer):
             alg += " " + ref_rot
+        if isinstance(puzzle.cube, SquareOne):
+            alg = puzzle.cube.to_self_notation(alg)
         batch_solver_inputs.append(alg)
         case_id += 1
     with open(output_path / "_batch_solver_def.txt", "w") as file:
         file.write(puzzle.cube.mdefs)
+
     with open(output_path / "_batch_solver_input.txt", "w") as file:
         unique, inverses, counts = np.unique(batch_solver_inputs, return_inverse=True, return_counts=True)
         for i, s in enumerate(batch_solver_inputs):
             if s in batch_solver_inputs[:i]:
                 b = batch_solver_inputs.index(s)
-                print("Duplicate:", *df.iloc[i][["Algset", "Group", "Name"]])
-                print("First occurance:", *df.iloc[b][["Algset", "Group", "Name"]])
+                print(f"Duplicate [{i}]: [{s}] ", *df.row(i))
+                print(f"First occurance [{b}] [{batch_solver_inputs[b]}]: ", *df.row(b))
         
         bs_str = ',\n'.join(batch_solver_inputs)
         file.write(f"[\n{bs_str}\n]")

@@ -959,6 +959,7 @@ class SquareOneColorizer(BaseColorizer):
             inverted = move[:-1] if move[-1] == "'" else move + "'"
             inverted_moves.append(inverted)
         scramble = " ".join(inverted_moves)
+        self.cube.reset()
         self.cube.move(scramble)
         svg = self.create_svg()
         if path is not None:
@@ -1022,15 +1023,15 @@ class SquareOneColorizer(BaseColorizer):
             "DR": [7+48, 8+48, 29+48, 28+48, 27+48],
             "DFR": [8+48, 9+48, 10+48, 32+48, 31+48, 30+48],
             "DF": [10+48, 11+48, 35+48, 34+48, 33+48],
-            "LDF": [36+48, 37+48, 1+48, 0+48],
+            "LBD": [36+48, 37+48, 1+48, 0+48], # LDB
             "LD": [37+48, 38+48, 2+48, 1+48],
-            "LBD": [38+48, 39+48, 3+48, 2+48],
+            "LDF": [38+48, 39+48, 3+48, 2+48], # LDF
             "FDL": [39+48, 40+48, 4+48, 3+48],
             "FD": [40+48, 41+48, 5+48, 4+48],
             "FDR": [41+48, 42+48, 6+48, 5+48],
-            "RBD": [42+48, 43+48, 7+48, 6+48],
+            "RDF": [42+48, 43+48, 7+48, 6+48], # RDF
             "RD": [43+48, 44+48, 8+48, 7+48],
-            "RDF": [44+48, 45+48, 9+48, 8+48],
+            "RBD": [44+48, 45+48, 9+48, 8+48], # RBD
             "BDR": [45+48, 46+48, 10+48, 9+48],
             "BD": [46+48, 47+48, 11+48, 10+48],
             "BDL": [47+48, 36+48, 0+48, 11+48],

@@ -60,12 +60,20 @@ move_map = OrderedDict({
     "t'": "-4,2/",
     "U3": "3,0/-3,0/3,0/",
     "U3'": "-3,0/3,0/-3,0/",
+    "U4": "3,0/-3,0/3,0/-3,0/",
+    "U4'": "-3,0/3,0/-3,0/3,0/",
     "D3": "0,3/0,-3/0,3/",
     "D3'": "0,-3/0,3/0,-3/",
+    "D3": "0,3/0,-3/0,3/0,-3/",
+    "D3'": "0,-3/0,3/0,-3/0,3/",
     "u3": "2,-1/-2,1/2,-1/",
     "u3'": "-2,1/2,-1/-2,1/",
     "d3": "-1,2/1,-2/-1,2/",
     "d3'": "1,-2/-1,2/1,-2/",
+    "u4": "2,-1/-2,1/2,-1/-2,1",
+    "u4'": "-2,1/2,-1/-2,1/2,-1/",
+    "d4": "-1,2/1,-2/-1,2/1,-2/",
+    "d4'": "1,-2/-1,2/1,-2/-1,2/",
     "UU": "3,0/3,0/",
     "UU'": "-3,0/-3,0/",
     "DD'": "0,-3/0,-3/",
@@ -94,7 +102,13 @@ move_map = OrderedDict({
     "Nj": "/3,0/-3,0/3,0/-3,0/",
     "nj": "/3,0/-3,0/3,0/-3,0/",
     "NN": "/3,-3/-3,3/",
+    "nN": "/3,-3/-3,3/",
+    "Nn": "/3,-3/-3,3/",
+    "nn": "/3,-3/-3,3/",
     "-NN": "/-3,3/3,-3/",
+    "-Nn": "/-3,3/3,-3/",
+    "-nN": "/-3,3/3,-3/",
+    "-nn": "/-3,3/3,-3/",
     "3Adj": "/3,0/-1,-1/-2,1/",
     "03Adj": "/0,3/-1,-1/1,-2/",
     "-3Adj": "/-3,0/1,1/2,-1/",
@@ -118,9 +132,16 @@ move_map = OrderedDict({
     "AA": "/0,-3/2,2/0,-3/-2,4/",
     "aa": "/1,-2/2,2/1,-2/-4,2/",
     "TT": "/5,-1/-3,0/-2,-2/0,3/",
-    "U 30Adj": "/3,0/3,0/-1,-1/-2,1/",
-    "D' 30Adj": "/0,-3/3,0/-1,-1/-2,1/",
-    "bJJ+E2": "/-3,0/3,3/0,3/0,6/6,0"
+    "30Adj": "/3,0/-1,-1/-2,1/",
+    "-30Adj": "/0,-1/0,-3/1,1/-1,2/",
+    "bJJ+E2": "/-3,0/3,3/0,3/0,6/0,6",
+    "bjJ+E2": "/-3,0/3,3/0,3/0,6/0,6",
+    "bJj+E2": "/-3,0/3,3/0,3/0,6/0,6",
+    "bjj+E2": "/-3,0/3,3/0,3/0,6/0,6",
+    "ObOpp": "1,0/-1,-1/3,0/1,1/3,0/-1,-1/0,1",
+    "OaOpp": "1,0/-1,-1/-3,0/1,1/-3,0/-1,-1/0,1",
+    "bjj OaOpp": "/-3,0/3,3/0,-3/0,1/-1,-1/-3,0/1,1/-3,0/-1,-1/0,1",
+    "(e' U)3": "/-3,-3/3,0/-3,-3/3,0/-3,-3/3,0"
     }
 )
 
@@ -175,8 +196,10 @@ algs_data = {
 }
 p = Path("data/Square-1 PBL Fixes.xlsx")
 tables = range(13, 41)
-for table_name in tables:
-    df = pl.read_excel(p, sheet_id=13, drop_empty_cols=True, drop_empty_rows=True)
+for sheet_id in tables:
+    df = pl.read_excel(p, sheet_id=sheet_id, drop_empty_cols=True, drop_empty_rows=True)
+    if df.columns[1].strip().lower() != "image":
+        df = df.drop(df.columns[1])
     alg_cols = [df.columns[3]]
     angle_cols = [df.columns[2]]
     name_col = df.columns[0]
@@ -184,11 +207,13 @@ for table_name in tables:
         alg_cols.append(df.columns[4])
         angle_cols.append(df.columns[5])
     for alg_col, angle_col in zip(alg_cols, angle_cols):
-        for alg_name, alg_options, angles in df[name_col, alg_col, angle_col].filter(pl.col(alg_col).is_not_null()).iter_rows():
+        for alg_name, alg_options, angles in df.select(name_col, alg_col, angle_col).filter(pl.col(alg_col).is_not_null()).iter_rows():
             alg_options: str
             angles: str
             algs = [x for x in alg_options.splitlines() if x.strip() != ""]
-            angles = [x for x in angles.splitlines() if x.strip() != ""]
+            if angles is None:
+                angles = "\n".join([""] * len(algs))
+            angles = ([x for x in angles.splitlines() if x.strip() != ""] + [""] * len(algs))[:len(algs)]
             st_algs = []
             for alg in algs:
                 try:
@@ -208,4 +233,4 @@ for table_name in tables:
             algs_data["Algs"].append("\n".join(csv_algs))
 
 total_df = pl.DataFrame(algs_data)
-total_df.write_csv("data/tests/sq1pbl.csv")
+total_df.write_csv("data/Sq1/PBL/sq1pbl.csv")

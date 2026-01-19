@@ -21,7 +21,7 @@ def testing():
 
     from cubevis.cube import SquareOne
     sq = SquareOneColorizer()
-    sq.scramble("(1, 0) / (-1, -1) / (0, 1)", "test.svg")
+    sq.inverse("0,-1 / -3,3 / -3,0 / 3,0 / 1,-2 / 2,-1 / 0,1", "test.svg")
 
 if __name__ == "__main__":
     testing()

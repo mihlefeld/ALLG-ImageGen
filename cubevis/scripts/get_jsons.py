@@ -1,5 +1,5 @@
 import argparse
-import pandas as pd
+import polars as pl
 import json
 import pathlib
 import re
@@ -25,6 +25,36 @@ def remove_aufs(scramble: str):
         moves = moves[:-1]
     return " ".join(moves)
 
+def square_one_self_to_standard(alg):
+    moves = re.findall(r"T|[UD][2']?|t", alg)
+    standard_moves = []
+    current_u = 0
+    current_d = 0
+    for move in moves:
+        move_type = move[0]
+        mult = 1
+        if move[-1] == "'":
+            mult = -1
+        if move[-1] == "2":
+            mult = 2
+        if move_type == "U":
+            current_u += mult * 3
+        if move_type == "D":
+            current_d += mult * 3
+        if move == "T":
+            current_u += 1
+            standard_moves += [f"{current_u},{current_d}", "/"]
+            current_u = -1
+            current_d = 0
+        if move == "t":
+            current_d -= 1
+            standard_moves += [f"{current_u},{current_d}", "/"]
+            current_u = 0
+            current_d = 1
+    standard_moves += [f"{current_u},{current_d}"]
+    return " ".join(standard_moves)
+
+
 def translate_scamble(scramble: str):
     """
     r -> R
@@ -44,6 +74,7 @@ def get_jsons(scrambles_path: Path, csv_path: Path, output_dir: Path, filter: li
     cut_auf_override = "5x5" in csv_path.as_posix().lower()
     needs_invert = "octaminx" in csv_path.as_posix().lower()
     needs_translate = "skewb" in csv_path.as_posix().lower()
+    needs_squan_translate = "sq1" in csv_path.as_posix().lower()
     output_dir.mkdir(parents=True, exist_ok=True)
     algs_info = defaultdict(dict)
     groups_info = defaultdict(list)
@@ -51,15 +82,10 @@ def get_jsons(scrambles_path: Path, csv_path: Path, output_dir: Path, filter: li
     scrambles = {}
     filter_set = set()
     selected_algsets = {}
-    algs_df = pd.read_csv(csv_path, encoding="UTF-8")
-    with open("test.txt", encoding="UTF-8", mode="w") as file:
-        file.write('\n'.join([group for group in algs_df["Group"].unique()]))
+    algs_df = (pl.read_csv(csv_path, encoding="UTF-8").filter(pl.col('Algs').is_not_null(), pl.col('Algs') != ""))
     case_id = 1
-    for i, row in algs_df.iterrows():
-        algset = row["Algset"]
-        group = row["Group"]
-        name = row["Name"]
-        algs = [alg.strip() for alg in row["Algs"].split("\n")]
+    for i, (algset, group, name, algs) in enumerate(algs_df.select("Algset", "Group", "Name", "Algs").iter_rows()):
+        algs = [alg.strip() for alg in algs.split("\n")]
         if len(filter) > 0 and algset not in filter:
             continue
         filter_set.add(i)
@@ -74,7 +100,7 @@ def get_jsons(scrambles_path: Path, csv_path: Path, output_dir: Path, filter: li
         algs_info[case_id]['algset'] = algset
         case_id += 1
     
-    scramble_df = pd.read_excel(scrambles_path, engine="openpyxl")
+    scramble_df = pl.read_excel(scrambles_path)
     case_id = 1
     for i, c in enumerate(scramble_df.columns):
         if i % 2 != 1:
@@ -84,13 +110,15 @@ def get_jsons(scrambles_path: Path, csv_path: Path, output_dir: Path, filter: li
         case_scrambles = [scr for scr in scramble_df[c][1:] if type(scr) == str]
         if len(case_scrambles) < 1:
             print(f"Wrong {case_id}!")
-        case_scrambles = [re.sub(r'\([^\)]*\) ', '', scr) for scr in case_scrambles if type(scr) == str]
+        case_scrambles = [re.sub(r'\([^\)]*\) ', '', scr) for scr in case_scrambles if scr != ""]
         if needs_invert:
             case_scrambles = list(map(naive_invert, case_scrambles))
         if needs_translate:
             case_scrambles = list(map(translate_scamble, case_scrambles))
         if cut_auf_override:
             case_scrambles = list(map(remove_aufs, case_scrambles))
+        if needs_squan_translate:
+            case_scrambles = list(map(square_one_self_to_standard, case_scrambles))
         scrambles[case_id] = list(set(case_scrambles))
         algs_info[case_id]['s'] = case_scrambles[0]
         case_id += 1 
