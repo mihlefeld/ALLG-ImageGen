@@ -64,8 +64,8 @@ move_map = OrderedDict({
     "U4'": "-3,0/3,0/-3,0/3,0/",
     "D3": "0,3/0,-3/0,3/",
     "D3'": "0,-3/0,3/0,-3/",
-    "D3": "0,3/0,-3/0,3/0,-3/",
-    "D3'": "0,-3/0,3/0,-3/0,3/",
+    "d3": "0,3/0,-3/0,3/0,-3/",
+    "d3'": "0,-3/0,3/0,-3/0,3/",
     "u3": "2,-1/-2,1/2,-1/",
     "u3'": "-2,1/2,-1/-2,1/",
     "d3": "-1,2/1,-2/-1,2/",
@@ -105,11 +105,14 @@ move_map = OrderedDict({
     "nN": "/3,-3/-3,3/",
     "Nn": "/3,-3/-3,3/",
     "nn": "/3,-3/-3,3/",
+    "NN nN": "/3,-3/-3,3/1,0/3,-3/-3,3/",
     "-NN": "/-3,3/3,-3/",
     "-Nn": "/-3,3/3,-3/",
     "-nN": "/-3,3/3,-3/",
     "-nn": "/-3,3/3,-3/",
     "3Adj": "/3,0/-1,-1/-2,1/",
+    "d' 3Adj": "1,-2/3,0/-1,-1/-2,1/",
+    "u' 3Adj": "-2,1/3,0/-1,-1/-2,1/",
     "03Adj": "/0,3/-1,-1/1,-2/",
     "-3Adj": "/-3,0/1,1/2,-1/",
     "0-3Adj": "/0,-3/1,1/-1,2/",
@@ -133,7 +136,12 @@ move_map = OrderedDict({
     "aa": "/1,-2/2,2/1,-2/-4,2/",
     "TT": "/5,-1/-3,0/-2,-2/0,3/",
     "30Adj": "/3,0/-1,-1/-2,1/",
-    "-30Adj": "/0,-1/0,-3/1,1/-1,2/",
+    "-30Adj": "0,-1/-3,0/1,1/2,-1/",
+    "M' -30Adj": "-1,-1/-3,0/1,1/2,-1/",
+    "31 03Adj": "3,1/0,3/-1,-1/1,-2/",
+    "U 03Adj": "3,0/0,3/-1,-1/1,-2/",
+    "E' -30Adj": "-3,3/-3,0/1,1/2,-1/",
+    "-32 -30Adj": "-3,2/-3,0/1,1/2,-1/",
     "bJJ+E2": "/-3,0/3,3/0,3/0,6/0,6",
     "bjJ+E2": "/-3,0/3,3/0,3/0,6/0,6",
     "bJj+E2": "/-3,0/3,3/0,3/0,6/0,6",
@@ -141,7 +149,10 @@ move_map = OrderedDict({
     "ObOpp": "1,0/-1,-1/3,0/1,1/3,0/-1,-1/0,1",
     "OaOpp": "1,0/-1,-1/-3,0/1,1/-3,0/-1,-1/0,1",
     "bjj OaOpp": "/-3,0/3,3/0,-3/0,1/-1,-1/-3,0/1,1/-3,0/-1,-1/0,1",
-    "(e' U)3": "/-3,-3/3,0/-3,-3/3,0/-3,-3/3,0"
+    "(e' U)3": "/-3,-3/3,0/-3,-3/3,0/-3,-3/3,0",
+    "FF": "/-3,0/2,2/-3,0/1,1/3,-3/",
+    "0-1 FF": "0,-1/0,3/-2,-2/0,3/-1,-1/3,-3/",
+    "(e' D)3": "-3,-3/0,3/-3,-3/0,3/-3,-3/"
     }
 )
 
@@ -183,54 +194,67 @@ def karnaukh_to_standard(alg):
 
     return " / ".join(standard_parts).strip()
 
+if __name__ == "__main__":
+    import polars as pl
+    from pathlib import Path
+    from cubevis.cube import SquareOne
+    sq = SquareOneColorizer()
+    algs_data = {
+        "Algset": [],
+        "Group": [],
+        "Name": [],
+        "Algs": []
+    }
+    p = Path("data/Square-1 PBL Fixes.xlsx")
+    tables = range(12, 42)
+    hidden_sheets = {29}
+    for sheet_id in tables:
+        if sheet_id in hidden_sheets:
+            continue
+        df = pl.read_excel(p, sheet_id=sheet_id, drop_empty_cols=True, drop_empty_rows=True)
+        if df.columns[1].strip().lower() != "image":
+            df = df.drop(df.columns[1])
+        alg_cols = [df.columns[3]]
+        angle_cols = [df.columns[2]]
+        name_col = df.columns[0]
+        if "Angle_1" in df.columns:
+            alg_cols.append(df.columns[4])
+            angle_cols.append(df.columns[5])
+        if "Angle_2" in df.columns:
+            angle_cols.append(df.columns[8])
+            alg_cols.append(df.columns[9])
+            alg_cols.append(df.columns[10])
+            angle_cols.append(df.columns[11])
+        for alg_col, angle_col in zip(alg_cols, angle_cols):
+            print("="*10, alg_col, "="*10)
+            for alg_name, alg_options, angles in df.select(name_col, alg_col, angle_col).filter(pl.col(alg_col).is_not_null()).iter_rows():
+                if alg_col == "-" and alg_name == "-":
+                    continue
+                alg_options: str
+                angles: str
+                algs = [x for x in alg_options.splitlines() if x.strip() != ""]
+                if angles is None:
+                    angles = "\n".join([""] * len(algs))
+                angles = ([x for x in angles.splitlines() if x.strip() != ""] + [""] * len(algs))[:len(algs)]
+                st_algs = []
+                for alg in algs:
+                    try:
+                        st_alg = karnaukh_to_standard(alg)
+                        st_alg = sq.fix_last_move_to_cubeshape(st_alg)
+                    except Exception as e:
+                        print(f"<<<<Failed for case {alg_col} {alg_name}:::\n{alg}\n::::with exception {e}>>>>")
+                        st_alg = e
+                    st_algs.append(st_alg)
+                csv_algs = []
+                for alg, st_alg, angle in zip(algs, st_algs, angles):
+                    csv_algs.append(f"[{angle}] {st_alg}")
+                    csv_algs.append(f"[{angle}] {alg}")
+                group_name = (alg_col if "/" not in alg_col else alg_col.split("/")[-1]).split()[0]
+                alg_name = (alg_name if "/" not in alg_name else alg_name.split("/")[-1]).split()[0]
+                algs_data["Algset"].append("PBL")
+                algs_data["Group"].append(group_name)
+                algs_data["Name"].append(f"{group_name}|{alg_name}")
+                algs_data["Algs"].append("\n".join(csv_algs))
 
-import polars as pl
-from pathlib import Path
-from cubevis.cube import SquareOne
-sq = SquareOneColorizer()
-algs_data = {
-    "Algset": [],
-    "Group": [],
-    "Name": [],
-    "Algs": []
-}
-p = Path("data/Square-1 PBL Fixes.xlsx")
-tables = range(13, 41)
-for sheet_id in tables:
-    df = pl.read_excel(p, sheet_id=sheet_id, drop_empty_cols=True, drop_empty_rows=True)
-    if df.columns[1].strip().lower() != "image":
-        df = df.drop(df.columns[1])
-    alg_cols = [df.columns[3]]
-    angle_cols = [df.columns[2]]
-    name_col = df.columns[0]
-    if "Angle_1" in df.columns:
-        alg_cols.append(df.columns[4])
-        angle_cols.append(df.columns[5])
-    for alg_col, angle_col in zip(alg_cols, angle_cols):
-        for alg_name, alg_options, angles in df.select(name_col, alg_col, angle_col).filter(pl.col(alg_col).is_not_null()).iter_rows():
-            alg_options: str
-            angles: str
-            algs = [x for x in alg_options.splitlines() if x.strip() != ""]
-            if angles is None:
-                angles = "\n".join([""] * len(algs))
-            angles = ([x for x in angles.splitlines() if x.strip() != ""] + [""] * len(algs))[:len(algs)]
-            st_algs = []
-            for alg in algs:
-                try:
-                    st_alg = karnaukh_to_standard(alg)
-                    st_alg = sq.fix_last_move_to_cubeshape(st_alg)
-                except Exception as e:
-                    print(f"<<<<Failed for case {alg_col} {alg_name}:::\n{alg}\n::::with exception {e}>>>>")
-                    st_alg = e
-                st_algs.append(st_alg)
-            csv_algs = []
-            for alg, st_alg, angle in zip(algs, st_algs, angles):
-                csv_algs.append(f"[{angle}] {st_alg}")
-                csv_algs.append(f"[{angle}] {alg}")
-            algs_data["Algset"].append("PBL")
-            algs_data["Group"].append(alg_col)
-            algs_data["Name"].append(alg_name)
-            algs_data["Algs"].append("\n".join(csv_algs))
-
-total_df = pl.DataFrame(algs_data)
-total_df.write_csv("data/Sq1/PBL/sq1pbl.csv")
+    total_df = pl.DataFrame(algs_data)
+    total_df.write_csv("data/Sq1/PBL/sq1pbl.csv")

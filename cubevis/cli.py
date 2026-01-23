@@ -4,8 +4,8 @@ from cubevis.scripts.gen import gen_images
 
 app = typer.Typer()
 
-app.command("get_jsons")(get_jsons)
-app.command("gen_images")(gen_images)
+app.command("jsons")(get_jsons)
+app.command("images")(gen_images)
 
 
 

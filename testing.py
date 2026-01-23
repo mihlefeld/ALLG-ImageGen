@@ -18,10 +18,7 @@ def testing():
     # ff = colorizers[0]
     # ff.scramble("x U r U2 x r U2 r U2' r' U2 l U2 3r' U2' r U2 r' U2' r' U x'", "test.svg")
     # ff.inverse("x U r U2 x r U2 r U2' r' U2 l U2 3r' U2' r U2 r' U2' r' U x'", "test-i.svg")
-
-    from cubevis.cube import SquareOne
-    sq = SquareOneColorizer()
-    sq.inverse("0,-1 / -3,3 / -3,0 / 3,0 / 1,-2 / 2,-1 / 0,1", "test.svg")
+    colorizers[0].scramble("U U'", "5x5.svg")
 
 if __name__ == "__main__":
     testing()

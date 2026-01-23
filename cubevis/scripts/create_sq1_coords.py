@@ -5,10 +5,10 @@ r2 = np.sqrt(2)
 side_len = 2*r2 + 1
 r3 = r2 + 1
 r5 = side_len
-e2 = 0.39 * 2
-e1 = e2 - 0.02
-c2 = 0.47 * 2
-c1 = c2 - 0.02
+e2 = 0.35 * 2
+e1 = e2 - 0.03
+c2 = 0.43 * 2
+c1 = c2 - 0.03
 ext = -0.4
 def make_eary_exit_points(a, b, c, r1, r2):
     a = np.array(a)
@@ -52,9 +52,9 @@ points += [
     *[extend_point(points[i], center, ext) for i in range(12)]
 ]
 points = np.array(points)
-points_down = np.array(points)
-points_down[:, 1] -= r5 * 1.8
-points = np.concat([points, points_down], axis=0)
+# points_down = np.array(points)
+# points_down[:, 1] -= r5 * 1.8
+# points = np.concatenate([points, points_down], axis=0)
 original = len(points)
 
 import matplotlib.pyplot as plt
