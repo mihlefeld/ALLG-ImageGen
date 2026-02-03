@@ -1,6 +1,6 @@
 from pathlib import Path
 
-start = Path("data/3x3/ZBLS/pic/_batch_solver_input.txt")
+start = Path("data\Sq1\OBL\pic\_batch_solver_input.txt")
 
 def read_input(path: Path):
     return path.read_text().splitlines()[1:-1]

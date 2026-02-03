@@ -1015,14 +1015,14 @@ class SquareOneColorizer(BaseColorizer):
             "FU": [46, 47, 11, 10],
             "FLU": [47, 36, 0, 11],
 
-            "DFL": [0+48, 1+48, 14+48, 13+48, 12+48, 11+48],
+            "DBL": [0+48, 1+48, 14+48, 13+48, 12+48, 11+48], # DBL
             "DL": [1+48, 2+48, 17+48, 16+48, 15+48],
-            "DBL": [2+48, 3+48, 4+48, 20+48, 19+48, 18+48],
-            "DB": [4+48, 5+48, 23+48, 22+48, 21+48],
-            "DBR": [5+48, 6+48, 7+48, 26+48, 25+48, 24+48],
+            "DFL": [2+48, 3+48, 4+48, 20+48, 19+48, 18+48], # DFL
+            "DF": [4+48, 5+48, 23+48, 22+48, 21+48], # DF
+            "DFR": [5+48, 6+48, 7+48, 26+48, 25+48, 24+48], # DFR
             "DR": [7+48, 8+48, 29+48, 28+48, 27+48],
-            "DFR": [8+48, 9+48, 10+48, 32+48, 31+48, 30+48],
-            "DF": [10+48, 11+48, 35+48, 34+48, 33+48],
+            "DBR": [8+48, 9+48, 10+48, 32+48, 31+48, 30+48], # DBR
+            "DB": [10+48, 11+48, 35+48, 34+48, 33+48], # DB
             "LBD": [36+48, 37+48, 1+48, 0+48], # LDB
             "LD": [37+48, 38+48, 2+48, 1+48],
             "LDF": [38+48, 39+48, 3+48, 2+48], # LDF
@@ -1048,6 +1048,25 @@ class SquareOneColorizer(BaseColorizer):
             "X": colors["ignore"]
         }
 
+class SquareOneOBLColorizer(SquareOneColorizer):
+    def get_face_to_color(self):
+        return {
+            "U": colors["black"],
+            "F": colors["ignore"],
+            "R": colors["ignore"],
+            "L": colors["ignore"],
+            "B": colors["ignore"],
+            "D": colors["white"],
+            "X": colors["ignore"]
+        }
+"""
+{UR UL UF UB}
+{DR DL DF DB}
+{X1 X2 X3 X4}
+{X5 X6 X7 X8}
+{UFL ULB UBR URF}
+{DLF DFR DRB DBL}
+"""
 
 def get_colorizer(name) -> BaseColorizer:
     """Returns the colorizer given as string implemented colorizers are:
@@ -1070,5 +1089,6 @@ def get_colorizer(name) -> BaseColorizer:
         "2x2-LL": TwoByTwoLLColorizer,
         "Octaminx": OctaminxColorizer,
         "Octaminx-L3T": OctaminxL3TColorizer,
-        "Square-1": SquareOneColorizer
+        "Square-1": SquareOneColorizer,
+        "Square-1-OBL": SquareOneOBLColorizer
     }[name]()

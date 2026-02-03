@@ -57,7 +57,7 @@ def square_one_self_to_standard(alg):
             standard_moves += [f"{normalize_move(current_u)},{normalize_move(current_d)}", "/"]
             current_u = 0
             current_d = 1
-    standard_moves += [f"{normalize_move(current_u)},{normalize_move(current_d)}", "/"]
+    standard_moves += [f"{normalize_move(current_u)},{normalize_move(current_d)}"]
     return " ".join(standard_moves)
 
 
@@ -78,7 +78,7 @@ def translate_scamble(scramble: str):
 
 def get_jsons(scrambles_path: Path, csv_path: Path, output_dir: Path, filter: list[str] = []):
     cut_auf_override = "5x5" in csv_path.as_posix().lower()
-    needs_invert = "octaminx" in csv_path.as_posix().lower() or "zbls" in csv_path.as_posix().lower()
+    needs_invert = "octaminx" in csv_path.as_posix().lower() or "zbls" in csv_path.as_posix().lower() or "obl" in csv_path.as_posix().lower()
     replace_2prime = "zbls" in csv_path.as_posix().lower()
     needs_translate = "skewb" in csv_path.as_posix().lower()
     needs_squan_translate = "sq1" in csv_path.as_posix().lower()

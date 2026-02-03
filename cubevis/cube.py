@@ -437,7 +437,8 @@ s: (UF DRB) (URF X6) (X3 DR) (UR DFR) (UBR X5) (X2 DF)
 T: (UB DF) (X2 X5) (UBR DFR) (UR DR) (X3 X6) (URF DRB)
 t: (X2 X5) (UBR DFR) (UR DR) (X3 X6) (URF DRB) (UF DB)
 U: (UFL ULB UBR URF) (UL UB UR UF) (X1 X2 X3 X4)
-D: (DLF DFR DRB DBL) (DF DR DB DL) (X5 X6 X7 X8)""")
+D: (DLF DFR DRB DBL) (DF DR DB DL) (X5 X6 X7 X8)
+W: (UFL DFR) (UL DR) (X1 X6) (ULB DRB) (UB DB) (X2 X7) (UBR DBL) (UR DL) (X3 X8) (URF DLF) (UF DF) (X4 X5)""")
         
     def to_self_notation(self, moves: str):
         if "/" in moves:
