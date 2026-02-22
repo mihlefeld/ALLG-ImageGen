@@ -1,6 +1,7 @@
 import numpy as np
 import re
 import pathlib
+import json
 from typing import Dict, List
 from scipy.spatial.transform import Rotation
 from collections import defaultdict
@@ -999,6 +1000,49 @@ class FiveByFiveL2EColorizer(FiveByFiveColorizer):
             "FD1": colors["ignore"],
             "FD2": colors["ignore"],
         }
+    
+class FiveByFiveSpecialColorizer(FiveByFiveColorizer):
+    def __init__(self, pre_moves=""):
+        super().__init__(pre_moves)
+        coords = json.loads((pathlib.Path(__file__).parent / "5x5coords.json").read_text())
+        self.vertices = np.array(coords["coordinates"])
+        self.polygons = coords["index_map"]
+        self.normalize_vertices()
+
+    def get_polygons(self):
+        return self.polygons
+    
+class FiveByFiveHoyaColorizer(FiveByFiveSpecialColorizer):
+    def get_face_to_color(self):
+        return {
+            "U": colors["yellow"],
+            "D": colors["white"],
+            "R": colors["orange"],
+            "L": colors["red"],
+            "F": colors["green"],
+            "B": colors["blue"],
+        }
+
+    def __init__(self, pre_moves=""):
+        super().__init__(pre_moves)
+        no_ignore = [
+            "FD", "DF", "RD", "DR", "DL", "LD", "BD", "DB"
+            "FD1", "DF1", "RD1", "DR1", "DL1", "LD1", "BD1", "DB1"
+            "FD2", "DF2", "RD2", "DR2", "DL2", "LD2", "BD2", "DB2",
+        ]
+        no_ignore += [f"R{i}".strip("0") for i in range(9)]
+        no_ignore += [f"L{i}".strip("0") for i in range(9)]
+        no_ignore += [f"B{i}".strip("0") for i in range(9)]
+        self.override = {k: colors['ignore'] for k in self.polygons.keys() if k not in no_ignore}
+        self.override.update({
+            "DFR": colors["ignore"], 
+            "DBR": colors["ignore"],
+            "DFL": colors["ignore"],
+            "DBL": colors["ignore"]
+            })
+
+    def get_override_pieces(self):
+        return self.override
 
 class SquareOneColorizer(BaseColorizer):
     def __init__(self):

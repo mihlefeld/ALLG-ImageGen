@@ -3,7 +3,7 @@ from cubevis.colorizer import *
 from pathlib import Path
 
 def testing():
-    colorizers = [MegaminxZBLSColorizer()]
+    colorizers = [FiveByFiveSpecialColorizer()]
     # for colorizer in colorizers:
     #     moves = list(colorizer.cube.moves.keys())
     #     colorizer_name = type(colorizer).__name__
@@ -18,8 +18,8 @@ def testing():
     # ff = colorizers[0]
     # ff.scramble("x U r U2 x r U2 r U2' r' U2 l U2 3r' U2' r U2 r' U2' r' U x'", "test.svg")
     # ff.inverse("x U r U2 x r U2 r U2' r' U2 l U2 3r' U2' r U2 r' U2' r' U x'", "test-i.svg")
-    col = MegaminxZBLSColorizer()
-    col.scramble("L' U2' R U R' U2 L", "test.svg")
+    col = FiveByFiveHoyaColorizer()
+    col.scramble("r U r'", "test.svg")
 
 if __name__ == "__main__":
     testing()
