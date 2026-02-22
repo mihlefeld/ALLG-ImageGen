@@ -126,7 +126,7 @@ def gen_images(puzzle_name: str, input_path: Path, output_path: Path, filter: Li
         
         puzzle.inverse(alg, filename)
         svg_strings[case_id] = puzzle.create_svg()
-        if isinstance(puzzle, OctaminxColorizer) or isinstance(puzzle, ThreeByThreeZBLSColorizer) or isinstance(puzzle, SquareOneColorizer):
+        if puzzle.needs_invert():
             alg = puzzle.inverse(alg)
         else:
             puzzle.cube.scramble(alg)

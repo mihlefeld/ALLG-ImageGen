@@ -3,6 +3,7 @@ import polars as pl
 import json
 import pathlib
 import re
+from cubevis.colorizer import get_colorizer
 from pathlib import Path
 from collections import defaultdict
 
@@ -76,9 +77,10 @@ def translate_scamble(scramble: str):
         .replace("b", "B")
         )
 
-def get_jsons(scrambles_path: Path, csv_path: Path, output_dir: Path, filter: list[str] = []):
+def get_jsons(puzzle: str, scrambles_path: Path, csv_path: Path, output_dir: Path, filter: list[str] = []):
+    colorizer = get_colorizer(puzzle)
     cut_auf_override = "5x5" in csv_path.as_posix().lower()
-    needs_invert = "octaminx" in csv_path.as_posix().lower() or "zbls" in csv_path.as_posix().lower() or "obl" in csv_path.as_posix().lower()
+    needs_invert = colorizer.needs_invert()
     replace_2prime = "zbls" in csv_path.as_posix().lower()
     needs_translate = "skewb" in csv_path.as_posix().lower()
     needs_squan_translate = "sq1" in csv_path.as_posix().lower()

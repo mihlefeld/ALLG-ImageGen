@@ -205,7 +205,7 @@ xl: (UR FC DI EG+1 BA+1) (UF FD DE+1 AE UA+1) (UL+1 LF LD LE LA+1) (UB+1 RF CD+1
             for sr in second_rotations:
                 self.pieces = {k: v for k, v in pieces_backup.items()}
                 self.move(fr + sr)
-                if self.pieces["RCF"] == ("RCF", 0):
+                if self.pieces["FCD"] == ("FCD", 0):
                     return (fr + sr).strip()
         
 class TwoByTwo(Cube):

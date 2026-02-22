@@ -133,6 +133,9 @@ f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {self.width} {self.heig
         with open(path, 'w') as file:
             file.write(svg)
 
+    def needs_invert(self):
+        return False
+
 
 
 class SkewbColorizer(BaseColorizer):
@@ -308,8 +311,21 @@ class MegaminxColorizer(BaseColorizer):
             }
 
 class MegaminxLLColorizer(MegaminxColorizer):
-    def __init__(self) -> None:
-        super().__init__("x2 z y'")
+    def get_face_to_color(self) -> Dict[str, str]:
+        return {
+            "C": colors["blue"],
+            "D": colors["yellow"],
+            "E": colors["purple"],
+            "G": colors["green"],
+            "H": colors["red"],
+            "I": colors["white"],
+            "B": colors["beige"],
+            "A": colors["lightblue"],
+            "L": colors["orange"],
+            "F": colors["lightgreen"],
+            "R": colors["pink"],
+            "U": colors["black"]
+            }
 
 
 class MegaminxOLLColorizer(MegaminxColorizer):
@@ -317,6 +333,93 @@ class MegaminxOLLColorizer(MegaminxColorizer):
         ret = defaultdict(lambda: colors["ignore"])
         ret["U"] = colors["black"]
         return ret
+
+class MegaminxZBLSColorizer(MegaminxLLColorizer):
+    def __init__(self):
+        super().__init__()
+        verts = self.vertices
+        new_pts = np.zeros((6, 2))
+        new_pts[0] = verts[1] + (verts[1] - verts[16])
+        new_pts[1] = verts[1] + 2*(verts[1] - verts[16])
+        new_pts[2] = verts[0] + (verts[0] - verts[15])
+        new_pts[3] = verts[0] + 2*(verts[0] - verts[15])
+        new_pts[4] = verts[14] + (verts[14] - verts[29])
+        new_pts[5] = verts[14] + 2*(verts[14] - verts[29])
+        self.vertices = np.concatenate([verts, new_pts])
+        self.normalize_vertices()
+        self.polygons = super().get_polygons()
+        self.polygons['FR'] = [0, 1, 35, 37]
+        self.polygons['FCR'] = [35, 37, 38, 36]
+        self.polygons['RF'] = [0, 14, 39, 37]
+        self.polygons['RCF'] = [37, 39, 40, 38]
+
+    def get_polygons(self):
+        return self.polygons
+    
+    def get_override_pieces(self):
+        return {
+            # edges
+            "FU": colors["ignore"],
+            "RU": colors["ignore"],
+            "AU": colors["ignore"],
+            "BU": colors["ignore"],
+            "RU": colors["ignore"],
+            # corners
+            "URF": colors["ignore"],
+            "RFU": colors["ignore"],
+            "FRU": colors["ignore"],
+
+            "UFL": colors["ignore"],
+            "LFU": colors["ignore"],
+            "FLU": colors["ignore"],
+
+            "ULA": colors["ignore"],
+            "LAU": colors["ignore"],
+            "ALU": colors["ignore"],
+
+            "UAB": colors["ignore"],
+            "ABU": colors["ignore"],
+            "BAU": colors["ignore"],
+
+            "UBR": colors["ignore"],
+            "BRU": colors["ignore"],
+            "RBU": colors["ignore"],
+        }
+    
+class MegaminxWVColorizer(MegaminxLLColorizer):
+    """
+    Equivalences
+{UR UF UL UA UB}
+{URF UFL ULA UAB UBR}
+    """
+    
+    def get_override_pieces(self):
+        return {
+            # edges
+            "FU": colors["ignore"],
+            "LU": colors["ignore"],
+            "AU": colors["ignore"],
+            "BU": colors["ignore"],
+            "RU": colors["ignore"],
+            # corners
+            "RFU": colors["ignore"],
+            "FRU": colors["ignore"],
+
+            "LFU": colors["ignore"],
+            "FLU": colors["ignore"],
+
+            "LAU": colors["ignore"],
+            "ALU": colors["ignore"],
+
+            "ABU": colors["ignore"],
+            "BAU": colors["ignore"],
+
+            "BRU": colors["ignore"],
+            "RBU": colors["ignore"],
+        }
+
+    def needs_invert(self):
+        return True
 
 class TwoByTwoColorizer(BaseColorizer):
     def __init__(self, pre_moves="") -> None:
@@ -535,6 +638,8 @@ class ThreeByThreeZBLSColorizer(ThreeByThreeColorizer):
         self.vertices[:, 0] *= -1
         self.normalize_vertices()
 
+    def needs_invert(self):
+        return True
 
     def get_polygons(self):
         return {
@@ -701,6 +806,9 @@ class OctaminxColorizer(BaseColorizer):
         ])
         self.vertices[:, 1] *= -1
         self.normalize_vertices()
+
+    def needs_invert(self):
+        return True
 
     def get_polygons(self) -> Dict[str, List[int]]:
         return {
@@ -951,6 +1059,9 @@ class SquareOneColorizer(BaseColorizer):
         self.vertices = np.concatenate([self.vertices, down_vert])
         self.normalize_vertices()
 
+    def needs_invert(self):
+        return True
+
     def inverse(self, moves, path=None):
         moves = self.cube.to_self_notation(moves)
         moves = re.findall(r"\d?[A-z]+'?\d?'?", moves)
@@ -1075,6 +1186,8 @@ def get_colorizer(name) -> BaseColorizer:
         "Megaminx": MegaminxColorizer,
         "Megaminx-LL": MegaminxLLColorizer,
         "Megaminx-OLL": MegaminxOLLColorizer,
+        "Megaminx-ZBLS": MegaminxZBLSColorizer,
+        "Megaminx-WV": MegaminxWVColorizer,
         "Pyraminx": PyraminxColorizer,
         "Skewb": SkewbColorizer,
         "Skewb-L2L": SkewbL2LColorizer,

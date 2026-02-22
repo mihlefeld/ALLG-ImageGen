@@ -3,7 +3,7 @@ from cubevis.colorizer import *
 from pathlib import Path
 
 def testing():
-    colorizers = [SquareOneColorizer()]
+    colorizers = [MegaminxZBLSColorizer()]
     # for colorizer in colorizers:
     #     moves = list(colorizer.cube.moves.keys())
     #     colorizer_name = type(colorizer).__name__
@@ -18,9 +18,8 @@ def testing():
     # ff = colorizers[0]
     # ff.scramble("x U r U2 x r U2 r U2' r' U2 l U2 3r' U2' r U2 r' U2' r' U x'", "test.svg")
     # ff.inverse("x U r U2 x r U2 r U2' r' U2 l U2 3r' U2' r U2 r' U2' r' U x'", "test-i.svg")
-    col = SquareOneColorizer()
-    col.cube.move("T U2 D2 T")
-    print(col.cube.pieces_to_cycles("W"))
+    col = MegaminxZBLSColorizer()
+    col.scramble("L' U2' R U R' U2 L", "test.svg")
 
 if __name__ == "__main__":
     testing()
