@@ -335,6 +335,9 @@ class MegaminxOLLColorizer(MegaminxColorizer):
         ret["U"] = colors["black"]
         return ret
 
+    def needs_invert(self):
+        return True
+
 class MegaminxZBLSColorizer(MegaminxLLColorizer):
     def __init__(self):
         super().__init__()

@@ -111,7 +111,7 @@ def gen_images(puzzle_name: str, input_path: Path, output_path: Path, filter: Li
     puzzle: BaseColorizer = get_colorizer(puzzle_name)
     os.makedirs(output_path, exist_ok=True)
     batch_solver_inputs = []
-    df = (pl.read_csv(input_path).filter(pl.col('Algs').is_not_null(), pl.col('Algs') != ""))
+    df = (pl.read_csv(input_path, infer_schema_length=1000).filter(pl.col('Algs').is_not_null(), pl.col('Algs') != ""))
     case_id = 1 
     svg_strings = dict()
     for i, row in enumerate(df.filter(pl.col("Algs").is_not_null(), (pl.col("Algs") != "")).iter_rows(named=True)):

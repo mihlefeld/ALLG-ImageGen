@@ -91,7 +91,7 @@ def get_jsons(puzzle: str, scrambles_path: Path, csv_path: Path, output_dir: Pat
     scrambles = {}
     filter_set = set()
     selected_algsets = {}
-    algs_df = (pl.read_csv(csv_path, encoding="UTF-8").filter(pl.col('Algs').is_not_null(), pl.col('Algs') != ""))
+    algs_df = (pl.read_csv(csv_path, encoding="UTF-8", infer_schema_length=1000).filter(pl.col('Algs').is_not_null(), pl.col('Algs') != ""))
     
     if needs_squan_translate:
         def every_other_row(col, start):
