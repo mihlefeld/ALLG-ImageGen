@@ -19,9 +19,7 @@ def testing():
     # ff.scramble("x U r U2 x r U2 r U2' r' U2 l U2 3r' U2' r U2 r' U2' r' U x'", "test.svg")
     # ff.inverse("x U r U2 x r U2 r U2' r' U2 l U2 3r' U2' r U2 r' U2' r' U x'", "test-i.svg")
     col = FiveByFiveHoyaColorizer()
-    col.cube.scramble("3r' r")
-    print(col.cube.pieces_to_cycles("m"))
-    col.scramble("m' U2 m", "test.svg")
+    col.scramble("R2 r U' r' R2 3r U' 3r'", "test.svg")
 
 if __name__ == "__main__":
     testing()

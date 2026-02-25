@@ -966,6 +966,9 @@ class FiveByFiveColorizer(BaseColorizer):
             "D": colors["yellow"]
         }
     
+    def needs_invert(self):
+        return True
+    
 class FiveByFiveL2EColorizer(FiveByFiveColorizer):
     def __init__(self):
         super().__init__("x2")
@@ -1240,6 +1243,7 @@ def get_colorizer(name) -> BaseColorizer:
         "Skewb-L2L": SkewbL2LColorizer,
         "5x5": FiveByFiveColorizer,
         "5x5-L2E": FiveByFiveL2EColorizer,
+        "5x5-Hoya": FiveByFiveHoyaColorizer,
         "3x3": ThreeByThreeColorizer,
         "3x3-LL": ThreeByThreeLLColorizer,
         "3x3-OLL": ThreeByThreeOLLColorizer,
