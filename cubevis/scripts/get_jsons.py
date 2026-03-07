@@ -61,6 +61,14 @@ def square_one_self_to_standard(alg):
     standard_moves += [f"{normalize_move(current_u)},{normalize_move(current_d)}"]
     return " ".join(standard_moves)
 
+def replace_rur(alg):
+    alg = re.sub(r"rur2", "r U2 r'", alg)
+    alg = re.sub(r"rur'", "r U' r'", alg)
+    alg = re.sub(r"rur", "r U r'", alg)
+    alg = re.sub(r"lul2", "l' U2 l", alg)
+    alg = re.sub(r"lul'", "l' U' l", alg)
+    alg = re.sub(r"lul", "l' U l", alg)
+    return alg
 
 def translate_scamble(scramble: str):
     """
@@ -81,7 +89,7 @@ def get_jsons(puzzle: str, scrambles_path: Path, csv_path: Path, output_dir: Pat
     colorizer = get_colorizer(puzzle)
     cut_auf_override = "5x5" in csv_path.as_posix().lower()
     needs_invert = colorizer.needs_invert()
-    replace_2prime = "zbls" in csv_path.as_posix().lower()
+    replace_2prime = "3x3" in puzzle or "5x5" in puzzle
     needs_translate = "skewb" in csv_path.as_posix().lower()
     needs_squan_translate = "sq1" in csv_path.as_posix().lower()
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -127,6 +135,8 @@ def get_jsons(puzzle: str, scrambles_path: Path, csv_path: Path, output_dir: Pat
         if len(case_scrambles) < 1:
             print(f"No solution for case {case_id}.")
         case_scrambles = [re.sub(r'\([^\)]*\) ', '', scr) for scr in case_scrambles if scr != ""]
+        if puzzle == "5x5-Hoya":
+            case_scrambles = list(map(replace_rur, case_scrambles))
         if needs_invert:
             case_scrambles = list(map(lambda x: naive_invert(x, replace_2prime), case_scrambles))
         if needs_translate:

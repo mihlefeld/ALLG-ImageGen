@@ -1,6 +1,6 @@
 from pathlib import Path
 
-start = Path("data\Sq1\OBL\pic\_batch_solver_input.txt")
+start = Path("zbls_100.txt")
 
 def read_input(path: Path):
     return path.read_text().splitlines()[1:-1]
@@ -24,5 +24,5 @@ def bin_search(lines, left, right, right_with_dupe):
     if bs_count == right:
         bin_search(lines, right, (right + right_with_dupe) // 2, right_with_dupe)
     
-lines =read_input(start)
+lines = read_input(start)
 bin_search(lines, 0, len(lines), len(lines))

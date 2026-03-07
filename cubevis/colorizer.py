@@ -135,7 +135,7 @@ f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {self.width} {self.heig
             file.write(svg)
 
     def needs_invert(self):
-        return False
+        return True
 
 
 
@@ -367,7 +367,7 @@ class MegaminxZBLSColorizer(MegaminxLLColorizer):
             "RU": colors["ignore"],
             "AU": colors["ignore"],
             "BU": colors["ignore"],
-            "RU": colors["ignore"],
+            "LU": colors["ignore"],
             # corners
             "URF": colors["ignore"],
             "RFU": colors["ignore"],
@@ -377,7 +377,7 @@ class MegaminxZBLSColorizer(MegaminxLLColorizer):
             "LFU": colors["ignore"],
             "FLU": colors["ignore"],
 
-            "ULA": colors["ignore"],
+            "UAL": colors["ignore"],
             "LAU": colors["ignore"],
             "ALU": colors["ignore"],
 
@@ -385,9 +385,9 @@ class MegaminxZBLSColorizer(MegaminxLLColorizer):
             "ABU": colors["ignore"],
             "BAU": colors["ignore"],
 
-            "UBR": colors["ignore"],
-            "BRU": colors["ignore"],
-            "RBU": colors["ignore"],
+            "UBL": colors["ignore"],
+            "BLU": colors["ignore"],
+            "LBU": colors["ignore"],
         }
     
 class MegaminxWVColorizer(MegaminxLLColorizer):
@@ -1049,6 +1049,17 @@ class FiveByFiveHoyaColorizer(FiveByFiveSpecialColorizer):
 
     def get_override_pieces(self):
         return self.override
+"""
+{DFR DRB DBL DLF URF UFL ULB UBR}
+{UF2 UL2 UB2 UR2 BR2 FR2 FL2 BL2}
+{UF1 UL1 UB1 UR1 BR1 FR1 FL1 BL1}
+{UF UL UB UR BR FR FL BL}
+{U1 U3 U5 U7 F1 F3 F5 F7}
+{F2 F4 F6 F8 U2 U4 U6 U8}
+1: URF UFL ULB UBR UF1 UL1 UB1 UR1 UF2 UL2 UB2 UR2 UF UL UB UR DFR DRB DBL DLF
+"""
+
+
 
 class SquareOneColorizer(BaseColorizer):
     def __init__(self):
