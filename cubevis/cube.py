@@ -56,7 +56,7 @@ class Cube:
                     break
             self.max_cycles[move] = cycles
 
-    def to_reference_rotation(self, scramble=True):
+    def to_reference_rotation(self, scramble=True, override_piece=None):
         return ""
 
     def move(self, m):
@@ -161,7 +161,7 @@ z: (U R D L) (URF-1 DFR+1 DLF-1 UFL+1) (UBR+1 DRB-1 DBL+1 ULB-1)""")
     def getName(self):
         return "Skewb"
     
-    def to_reference_rotation(self, scramble=True):
+    def to_reference_rotation(self, scramble=True, override_piece=None):
         solved_piece = "URF" if scramble else "DFR"
         pieces_backup = {k: v for k, v in self.pieces.items()}
         first_rotations = ["", "x ", "x2 ", "x' ", "z ", "z' "]
@@ -197,7 +197,7 @@ xl: (UR FC DI EG+1 BA+1) (UF FD DE+1 AE UA+1) (UL+1 LF LD LE LA+1) (UB+1 RF CD+1
     def getName(self):
         return "Megaminx"
     
-    def to_reference_rotation(self, scramble=True):
+    def to_reference_rotation(self, scramble=True, override_piece=None):
         pieces_backup = {k: v for k, v in self.pieces.items()}
         first_rotations = ["", "x ", "x2 ", "x2' ", "x' ", "y ", "y' ", "y2' ", "xl2 ", "xl2 y ", "xl2 y2 "]
         second_rotations = ["", "z", "z2", "z2'", "z'"]
@@ -224,7 +224,7 @@ z: (URF-1 DFR+1 DLF-1 UFL+1) (UBR+1 DRB-1 DBL+1 ULB-1)""")
     def getName(self):
         return "2x2"
     
-    def to_reference_rotation(self, scramble=True):
+    def to_reference_rotation(self, scramble=True, override_piece=None):
         pieces_backup = {k: v for k, v in self.pieces.items()}
         first_rotations = ["", "x ", "x2 ", "x' ", "z ", "z' "]
         second_rotations = ["", "y", "y2", "y'"]
@@ -265,7 +265,7 @@ z: (UF-1 FR-1 DF-1 FL-1) (URF-1 DFR+1 DLF-1 UFL+1) (UB-1 BR-1 DB-1 BL-1) (UBR+1 
     def getName(self):
         return "3x3"
     
-    def to_reference_rotation(self, scramble=True):
+    def to_reference_rotation(self, scramble=True, override_piece=None):
         pieces_backup = {k: v for k, v in self.pieces.items()}
         first_rotations = ["", "x ", "x2 ", "x' ", "z ", "z' "]
         second_rotations = ["", "y", "y2", "y'"]
@@ -300,7 +300,10 @@ z: (FDR+1 BFR-1 FBD) (fdr+1 bfr-1 fbd) (DF RF+1 FB+1) (BD+1 RD BR+1) (BRD-1) (br
     def getName(self):
         return "Pyraminx"
     
-    def to_reference_rotation(self, scramble=True):
+    def to_reference_rotation(self, scramble=True, override_piece=None):
+        piece = "FBD"
+        if override_piece is not None:
+            piece = override_piece
         pieces_backup = {k: v for k, v in self.pieces.items()}
         first_rotations = ["", "x ", "x' ", "xl "]
         second_rotations = ["", "z", "z2"]
@@ -308,7 +311,7 @@ z: (FDR+1 BFR-1 FBD) (fdr+1 bfr-1 fbd) (DF RF+1 FB+1) (BD+1 RD BR+1) (BRD-1) (br
             for sr in second_rotations:
                 self.pieces = {k: v for k, v in pieces_backup.items()}
                 self.move(fr + sr)
-                if self.pieces["FBD"] == ("FBD", 0):
+                if self.pieces[piece] == (piece, 0):
                     return (fr + sr).strip()
             
 
@@ -356,7 +359,7 @@ z: (WRGP-1 YGRZ+2 YOPG-1) (GP GR GY) (G1 G2 G3) (R1 Y2 P3) (R3 Y1 P2) (WPOB+2 WB
 t: (WRGP+1) (YZBO-1) (WP+1 WR+1 GR+1 GP+1) (W3 R1 G1 P2) (WPOB-1 WBZR+2 YGRZ+1 YOPG+2) (WB+1 ZR+1 GY+1 OP+1) (W1 R2 G2 P3) (W2 R3 G3 P1) (B2 Z1 Y2 O2) (B1 Z3 Y1 O1) (B3 Z2 Y3 O3) (OB+1 ZB+1 ZY+1 OY+1) (P W R G) (O B Z Y)\
 """)
         
-    def to_reference_rotation(self, scramble=True):
+    def to_reference_rotation(self, scramble=True, override_piece=None):
         pieces_backup = {k: v for k, v in self.pieces.items()}
         first_rotations = ["", "t xl ", "t' ", "t ", "xr ", "xr' t ", "xl ", "xr' "]
         second_rotations = ["", "y", "y'"]

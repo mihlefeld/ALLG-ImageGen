@@ -106,6 +106,20 @@ def clean_alg_octaminx(alg):
     final_moves = " ".join(converted)
     return final_moves
 
+def clean_alg_pyraminx(alg: str):
+    rep = {
+        '[b]': 'z',
+        "[b']": "z'",
+        "[r]": "x",
+        "[r']": "x'",
+        "[l]": "xl",
+        "[l']": "xl'",
+    }
+    rep = dict((re.escape(k), v) for k, v in rep.items()) 
+    pattern = re.compile("|".join(rep.keys()))
+    alg = pattern.sub(lambda m: rep[re.escape(m.group(0))], alg)
+    return alg
+
 
 def gen_images(puzzle_name: str, input_path: Path, output_path: Path, filter: List[str] = []):
     puzzle: BaseColorizer = get_colorizer(puzzle_name)
@@ -118,19 +132,25 @@ def gen_images(puzzle_name: str, input_path: Path, output_path: Path, filter: Li
         if len(filter) > 0 and row["Algset"] not in filter:
             continue
         filename =  output_path / f"{case_id}.svg"
-        alg = clean_alg(row["Algs"].split("\n")[0], puzzle.cube)
+        alg = row['Algs'].split("\n")[0]
+        if "Pyraminx" in puzzle_name:
+            alg = clean_alg_pyraminx(alg)
+        alg = clean_alg(alg, puzzle.cube)
         if "Skewb" in puzzle_name:
             alg = clean_alg([alg for alg in row["Algs"].split("\n") if "H" not in alg and "S" not in alg][0], puzzle.cube)
         if "Octaminx" in puzzle_name:
             alg = clean_alg_octaminx(alg)
         
-        puzzle.inverse(alg, filename)
+        override_piece = None
+        if "Pyraminx" in puzzle_name and "TL4E-R L" in row['Algset']:
+            override_piece = "BRD"
+        puzzle.inverse(alg, filename, ref_rot_override=override_piece)
         svg_strings[case_id] = puzzle.create_svg()
         if puzzle.needs_invert():
-            alg = puzzle.inverse(alg)
+            alg = puzzle.inverse(alg, ref_rot_override=override_piece)
         else:
             puzzle.cube.scramble(alg)
-        ref_rot = puzzle.cube.to_reference_rotation()
+        ref_rot = puzzle.cube.to_reference_rotation(override_piece=override_piece)
         if ref_rot != "" and not isinstance(puzzle, ThreeByThreeZBLSColorizer):
             alg += " " + ref_rot
         batch_solver_inputs.append(alg)

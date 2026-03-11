@@ -62,9 +62,12 @@ def tl4er(pyarminx_sheet: Path):
     current_algs_left_minus = []
     current_algs_right_minus = []
     current_alg = None
+    current_group = None
     for cols in df.filter(pl.row_index() != 1).iter_rows():
         if cols[0] != None:
             if any(cols[1:]) and (cols[2] != "Bar on Left"):
+                if current_group is None:
+                    current_group = new_group
                 if  current_alg is None:
                     current_alg = cols[0]
                 if len(current_algs_left_plus) != 0:
@@ -92,8 +95,9 @@ def tl4er(pyarminx_sheet: Path):
                     data['Algs'].append(join_algs(current_algs_right_minus))
                     current_algs_right_minus = []
                 current_alg = cols[0]
+                current_group = new_group
             else:
-                current_group = cols[0]
+                new_group = cols[0]
         if cols[2] and cols[2] != "Bar on Left":
             current_algs_left_plus.append(cols[2])
         if cols[3] and cols[3] != "Bar on Right":
@@ -174,10 +178,25 @@ def ml4e(pyarminx_sheet: Path):
     result = pl.DataFrame(data)
     return result
 
-if __name__ == "__main__":
-    as1 = tl4eb("The Pyraminx Sheet.xlsx")
-    as1.write_csv("sheet.csv")
-    # as2 = ml4e("The Pyraminx Sheet.xlsx")
-    # as2.write_csv("sheet.csv")
-    # as3 = tl4er("The Pyraminx Sheet.xlsx")
-    # as3.write_csv("sheet.csv")
+@app.command()
+def extract_algs(pyraminx_sheet: Path, pyra_dir: Path, name: list[str], out_name: str | None = None):
+    combined_name = name[0] if len(name) == 1 else out_name
+    assert combined_name is not None
+    out_path = pyra_dir / combined_name.upper() / f"pyra{combined_name.lower()}.csv"
+    out_path.parent.mkdir(exist_ok=True, parents=True)
+    dfs = []
+    for name_ in name:
+        fun = {
+            "tl4eb": tl4eb,
+            "tl4er": tl4er,
+            "ml4e": ml4e
+        }[name_.lower()]
+        dfs.append(fun(pyraminx_sheet))
+    df: pl.DataFrame = pl.concat(dfs)
+    df = df.with_columns(
+        pl.col('Algs')
+        .str.replace("Y", "y")
+    )
+    df.write_csv(out_path)
+
+app()

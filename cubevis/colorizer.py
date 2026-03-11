@@ -108,7 +108,7 @@ f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {self.width} {self.heig
         svg += "</svg>"
         return svg
     
-    def inverse(self, moves, path=None):
+    def inverse(self, moves, path=None, ref_rot_override=None):
         moves = re.findall(r"\d?[A-z]+'?\d?'?", moves)
         rotations = []
         inverted_moves = []
@@ -119,7 +119,7 @@ f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {self.width} {self.heig
             inverted_moves.append(inverted)
         scramble = " ".join(inverted_moves)
         self.cube.scramble(" ".join(moves))
-        rotation = self.cube.to_reference_rotation(scramble=False)
+        rotation = self.cube.to_reference_rotation(scramble=False, override_piece=ref_rot_override)
         if rotation != "":
             rotation = " ".join([(m[:-1] if m[-1] == "'" else m + "'") for m in rotation.split(' ')][::-1]) + " "
 
@@ -369,7 +369,7 @@ class MegaminxZBLSColorizer(MegaminxLLColorizer):
             "BU": colors["ignore"],
             "LU": colors["ignore"],
             # corners
-            "URF": colors["ignore"],
+            "UFR": colors["ignore"],
             "RFU": colors["ignore"],
             "FRU": colors["ignore"],
 
@@ -385,9 +385,9 @@ class MegaminxZBLSColorizer(MegaminxLLColorizer):
             "ABU": colors["ignore"],
             "BAU": colors["ignore"],
 
-            "UBL": colors["ignore"],
-            "BLU": colors["ignore"],
-            "LBU": colors["ignore"],
+            "UBR": colors["ignore"],
+            "BRU": colors["ignore"],
+            "RBU": colors["ignore"],
         }
     
 class MegaminxWVColorizer(MegaminxLLColorizer):
@@ -1243,7 +1243,7 @@ class SquareOneOBLColorizer(SquareOneColorizer):
 def get_colorizer(name) -> BaseColorizer:
     """Returns the colorizer given as string implemented colorizers are:
     Megaminx, Megaminx-OLL, Pyraminx, Skewb, 3x3, 3x3-OLL, 2x2"""
-    return {
+    options = {
         "Megaminx": MegaminxColorizer,
         "Megaminx-LL": MegaminxLLColorizer,
         "Megaminx-OLL": MegaminxOLLColorizer,
@@ -1266,4 +1266,8 @@ def get_colorizer(name) -> BaseColorizer:
         "Octaminx-L3T": OctaminxL3TColorizer,
         "Square-1": SquareOneColorizer,
         "Square-1-OBL": SquareOneOBLColorizer
-    }[name]()
+    }
+    if name not in options:
+        raise KeyError(f"Puzzle must be one of {', '.join(options.keys())}")
+    return options[name]()
+

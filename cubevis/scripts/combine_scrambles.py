@@ -19,6 +19,7 @@ def write_missing_scrambles(batch_solver_input: Path, scrambles: Path, batch_sol
 def combine_scrambles(large: Path, small: Path, out: Path):
     ldf = pl.read_excel(large)
     sdf = pl.read_excel(small)
+    ldf = ldf.head(20)
     small_column = 0
     for i, col in enumerate(ldf.columns):
         if i % 2 == 0:
