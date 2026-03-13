@@ -162,7 +162,7 @@ z: (U R D L) (URF-1 DFR+1 DLF-1 UFL+1) (UBR+1 DRB-1 DBL+1 ULB-1)""")
         return "Skewb"
     
     def to_reference_rotation(self, scramble=True, override_piece=None):
-        solved_piece = "URF" if scramble else "DFR"
+        solved_piece = "URF" if scramble else "DBL"
         pieces_backup = {k: v for k, v in self.pieces.items()}
         first_rotations = ["", "x ", "x2 ", "x' ", "z ", "z' "]
         second_rotations = ["", "y", "y2", "y'"]
