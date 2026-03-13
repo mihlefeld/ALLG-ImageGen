@@ -219,7 +219,18 @@ class SkewbColorizer(BaseColorizer):
 
 class SkewbL2LColorizer(SkewbColorizer):
     def __init__(self) -> None:
-        super().__init__("z2")
+        super().__init__()
+    
+    def get_face_to_color(self) -> Dict[str, str]:
+        return {
+            "D": colors["white"],
+            "F": colors["green"],
+            "L": colors["red"],
+            "B": colors["blue"],
+            "R": colors["orange"],
+            "U": colors["yellow"]
+        }
+
 
     
 class MegaminxColorizer(BaseColorizer):
