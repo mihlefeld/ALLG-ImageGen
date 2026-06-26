@@ -5,7 +5,7 @@ import json
 from typing import Dict, List
 from scipy.spatial.transform import Rotation
 from collections import defaultdict
-from cubevis.cube import Cube, Megaminx, Skewb, TwoByTwo, ThreeByThree, Pyraminx, Octaminx, FiveByFive, SquareOne
+from cubevis.cube import Cube, Megaminx, Skewb, TwoByTwo, ThreeByThree, Pyraminx, FTO, FiveByFive, SquareOne
 
 colors = {
     "white": "#fafafa",
@@ -788,10 +788,10 @@ class PyraminxColorizer(BaseColorizer):
             initial_dict[k.lower()] = initial_dict[k]
         return initial_dict
 
-class OctaminxColorizer(BaseColorizer):
+class FTOColorizer(BaseColorizer):
     def __init__(self, pre_moves="") -> None:
-        super().__init__(Octaminx(), pre_moves)
-        p = pathlib.Path(__file__).parent / "octaminx.npy"
+        super().__init__(FTO(), pre_moves)
+        p = pathlib.Path(__file__).parent / "fto.npy"
         self.vertices = np.array([
             [379, 438],
             [379, 219],
@@ -876,7 +876,7 @@ class OctaminxColorizer(BaseColorizer):
 
 # R = right, G = front, P = Left, W = Up, O = Back left, B = Back, Z = Back right, Y = bottom
 
-class OctaminxL3TColorizer(OctaminxColorizer):
+class FTOL3TColorizer(FTOColorizer):
     def get_face_to_color(self) -> Dict[str, str]:
         return {
             "R": colors["orange"],
@@ -889,7 +889,41 @@ class OctaminxL3TColorizer(OctaminxColorizer):
             "W": colors["yellow"]
         }
 
-class OctaminxOLPColorizer(OctaminxL3TColorizer):
+class FTOL6XColorizer(FTOL3TColorizer):
+    def get_override_colors(self):
+        return  {
+            "G3": colors['black'],
+            "Z3": colors['black'],
+            "O3": colors['black'],
+            "G1": colors['black'],
+            "Z1": colors['black'],
+            "O1": colors['black'],
+            "WGPR": colors['black'],
+            "RGPW": colors['black'],
+            "GPRW": colors['black'],
+            "PGRW": colors['black'],
+            "WBOP": colors['black'],
+            "PBOW": colors['black'],
+            "OBPW": colors['black'],
+            "BOPW": colors['black'],
+            "WBRZ": colors['black'],
+            "BRWZ": colors['black'],
+            "ZBRW": colors['black'],
+            "RBWZ": colors['black'],
+        }
+    
+class FTOL3CColorizer(FTOL3TColorizer):
+    def get_override_colors(self):
+        return  {
+            "G3": colors['black'],
+            "Z3": colors['black'],
+            "O3": colors['black'],
+            "G1": colors['black'],
+            "Z1": colors['black'],
+            "O1": colors['black'],
+        }
+
+class FTOOLPColorizer(FTOL3TColorizer):
     def get_face_to_color(self) -> Dict[str, str]:
         return {
             "R": colors["ignore"],
@@ -1273,8 +1307,10 @@ def get_colorizer(name) -> BaseColorizer:
         "3x3-ZBLS": ThreeByThreeZBLSColorizer,
         "2x2": TwoByTwoColorizer,
         "2x2-LL": TwoByTwoLLColorizer,
-        "Octaminx": OctaminxColorizer,
-        "Octaminx-L3T": OctaminxL3TColorizer,
+        "FTO": FTOColorizer,
+        "FTO-L3T": FTOL3TColorizer,
+        "FTO-L3C": FTOL3CColorizer,
+        "FTO-L6X": FTOL6XColorizer,
         "Square-1": SquareOneColorizer,
         "Square-1-OBL": SquareOneOBLColorizer
     }

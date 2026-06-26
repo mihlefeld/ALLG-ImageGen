@@ -1,7 +1,7 @@
 import argparse
 from cubevis import get_colorizer
-from cubevis.colorizer import OctaminxColorizer, ThreeByThreeZBLSColorizer, BaseColorizer, SquareOneColorizer
-from cubevis.cube import OctaminxRotations, SquareOne
+from cubevis.colorizer import FTOColorizer, ThreeByThreeZBLSColorizer, BaseColorizer, SquareOneColorizer
+from cubevis.cube import FTORotations, SquareOne
 from typing import List
 import json
 import os
@@ -40,7 +40,7 @@ def clean_alg(alg: str, puzzle):
         moves.append(move)
     return " ".join(moves)
         
-def clean_alg_octaminx(alg):
+def clean_alg_fto(alg):
     alg = re.sub(r",\s*", ",", alg)
     cif_orbit = {"R", "L", "B", "D"}
     eif_orbit = {"R", "L", "B", "U"}
@@ -84,7 +84,7 @@ def clean_alg_octaminx(alg):
             if sw:
                 in_cif = not in_cif
             front_check = front_checking_stickers[in_cif]
-            rot = OctaminxRotations()
+            rot = FTORotations()
             rotations = [to_top_rotations[top_side]]
             if rotations[0] != "":
                 rot.move(rotations[0])
@@ -138,8 +138,8 @@ def gen_images(puzzle_name: str, input_path: Path, output_path: Path, filter: Li
         alg = clean_alg(alg, puzzle.cube)
         if "Skewb" in puzzle_name:
             alg = clean_alg([alg for alg in row["Algs"].split("\n") if "H" not in alg and "S" not in alg][0], puzzle.cube)
-        if "Octaminx" in puzzle_name:
-            alg = clean_alg_octaminx(alg)
+        if "FTO" in puzzle_name:
+            alg = clean_alg_fto(alg)
         
         override_piece = None
         if "Pyraminx" in puzzle_name and "TL4E-R L" in row['Algset']:

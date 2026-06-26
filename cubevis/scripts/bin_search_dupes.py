@@ -1,6 +1,6 @@
 from pathlib import Path
 
-start = Path("data/Pyraminx/TL4E/pic/_batch_solver_input.txt")
+start = Path("data/FTO/L3T/pic/_batch_solver_input copy.txt")
 
 def read_input(path: Path):
     return path.read_text().splitlines()[1:-1]

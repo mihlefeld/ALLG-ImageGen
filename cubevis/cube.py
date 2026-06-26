@@ -315,7 +315,7 @@ z: (FDR+1 BFR-1 FBD) (fdr+1 bfr-1 fbd) (DF RF+1 FB+1) (BD+1 RD BR+1) (BRD-1) (br
                     return (fr + sr).strip()
             
 
-class Octaminx(Cube):
+class FTO(Cube):
     def __init__(self) -> None:
         super().__init__("""\
 U: (WRGP WPOB WBZR) (WR WP WB) (W1 W2 W3) (R1 P1 B1) (R2 P2 B2)
@@ -480,7 +480,7 @@ W: (UFL DFR) (UL DR) (X1 X6) (ULB DRB) (UB DB) (X2 X7) (UBR DBL) (UR DL) (X3 X8)
     def getName(self):
         return "Square-1"
 
-class OctaminxRotations(Cube):
+class FTORotations(Cube):
     def __init__(self) -> None:
         super().__init__("""\
 xr: (W Z G) (P B Y)
