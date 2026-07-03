@@ -136,7 +136,12 @@ f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {self.width} {self.heig
 
     def needs_invert(self):
         return True
+    
+    def get_equivalences(self):
+        return ""
 
+    def get_prune_search_subgroup(self):
+        return ""
 
 
 class SkewbColorizer(BaseColorizer):
@@ -216,6 +221,9 @@ class SkewbColorizer(BaseColorizer):
             "L": colors["orange"],
             "D": colors["yellow"]
         }
+    
+    def get_prune_search_subgroup(self):
+        return "7 6 R U L B F"
 
 class SkewbL2LColorizer(SkewbColorizer):
     def __init__(self) -> None:
@@ -338,6 +346,9 @@ class MegaminxLLColorizer(MegaminxColorizer):
             "R": colors["pink"],
             "U": colors["black"]
             }
+    
+    def get_prune_search_subgroup(self):
+        return "11 10 R U\n" "8 7 R U F"
 
 
 class MegaminxOLLColorizer(MegaminxColorizer):
@@ -346,8 +357,15 @@ class MegaminxOLLColorizer(MegaminxColorizer):
         ret["U"] = colors["black"]
         return ret
 
-    def needs_invert(self):
-        return True
+    def get_equivalences(self):
+        return """\
+{UR UF UL UA UB}
+{URF UFL ULA UAB UBR}
+1: URF UFL ULA UAB UBR\
+"""
+
+    def get_prune_search_subgroup(self):
+        return "7 6 R U F"
 
 class MegaminxZBLSColorizer(MegaminxLLColorizer):
     def __init__(self):
@@ -401,13 +419,17 @@ class MegaminxZBLSColorizer(MegaminxLLColorizer):
             "RBU": colors["ignore"],
         }
     
-class MegaminxWVColorizer(MegaminxLLColorizer):
-    """
-    Equivalences
+    def get_equivalences(self):
+        return """\
 {UR UF UL UA UB}
 {URF UFL ULA UAB UBR}
-    """
+1: URF UFL ULA UAB UBR\
+"""
+
+    def get_prune_search_subgroup(self):
+        return "7 6 R U F"
     
+class MegaminxWVColorizer(MegaminxLLColorizer):
     def get_override_pieces(self):
         return {
             # edges
@@ -432,9 +454,16 @@ class MegaminxWVColorizer(MegaminxLLColorizer):
             "BRU": colors["ignore"],
             "RBU": colors["ignore"],
         }
+    
+    def get_equivalences(self):
+        return """\
+{UR UF UL UA UB}
+{URF UFL ULA UAB UBR}\
+"""
 
-    def needs_invert(self):
-        return True
+    def get_prune_search_subgroup(self):
+        return "7 6 R U F"
+    
 
 class TwoByTwoColorizer(BaseColorizer):
     def __init__(self, pre_moves="") -> None:
@@ -519,6 +548,8 @@ class TwoByTwoColorizer(BaseColorizer):
             "D": colors["yellow"]
         }
     
+    def get_prune_search_subgroup(self):
+        return "6 5 R U F"
 class TwoByTwoLLColorizer(TwoByTwoColorizer):
     def __init__(self) -> None:
         super().__init__("z2")
@@ -577,6 +608,9 @@ class ThreeByThreeColorizer(BaseColorizer):
             "L": colors["orange"],
             "D": colors["yellow"]
         }
+    
+    def get_prune_search_subgroup(self):
+        return "8 7 R U F"
 
 class ThreeByThreeLLColorizer(ThreeByThreeColorizer):
     def __init__(self) -> None:
@@ -592,6 +626,13 @@ class ThreeByThreeOLLColorizer(ThreeByThreeColorizer):
             "L": colors["ignore"],
             "D": colors["ignore"],
         }
+    
+    def get_equivalences(self):
+        return """\
+{UR UL UF UB}
+{URF UFL ULB UBR}
+\
+"""
 
 class ThreeByThreeCMLLColorizer(ThreeByThreeLLColorizer):
     def get_override_colors(self) -> Dict[str, str]:
@@ -606,6 +647,12 @@ class ThreeByThreeCMLLColorizer(ThreeByThreeLLColorizer):
             "BU": colors["ignore"],
             "U": colors["ignore"]
         }
+    
+    def get_equivalences(self):
+        return """\
+{UR UL UF UB DF DB}
+1: UR UL UF UB DF DB\
+"""
     
 class ThreeByThreeZBLSColorizer(ThreeByThreeColorizer):
     def __init__(self):
@@ -710,11 +757,12 @@ class ThreeByThreeZBLSColorizer(ThreeByThreeColorizer):
             "BDR": colors["ignore"],
             "DBR": colors["ignore"],
         }
-"""
-Batch Solver equivalences:
+    
+    def get_equivalences(self):
+        return """\
 {UF UR UB UL}
-1: URF UBR ULB UFL 
-"""    
+1: URF UBR ULB UFL\
+"""
     
 class PyraminxColorizer(BaseColorizer):
     def __init__(self) -> None:
@@ -787,6 +835,9 @@ class PyraminxColorizer(BaseColorizer):
         for k in "RBFD":
             initial_dict[k.lower()] = initial_dict[k]
         return initial_dict
+    
+    def get_prune_search_subgroup(self):
+        return "6 5 R U L B"
 
 class FTOColorizer(BaseColorizer):
     def __init__(self, pre_moves="") -> None:
@@ -873,6 +924,9 @@ class FTOColorizer(BaseColorizer):
             "O": colors["orange"],
             "W": colors["white"]
         }
+    
+    def get_prune_search_subgroup(self):
+        return "8 7 R U L B BR"
 
 # R = right, G = front, P = Left, W = Up, O = Back left, B = Back, Z = Back right, Y = bottom
 
@@ -888,6 +942,19 @@ class FTOL3TColorizer(FTOColorizer):
             "O": colors["red"],
             "W": colors["yellow"]
         }
+    
+    def get_equivalences(self):
+        return """\
+{Y1 Y2 Y3}
+{W1 W2 W3}
+{G2 G3}
+{P1 P2}
+{R1 R2}
+{B1 B2}
+{O2 O2}
+{Z2 Z3}
+{W R G P O B Z Y}\
+"""
 
 class FTOL6XColorizer(FTOL3TColorizer):
     def get_override_colors(self):
@@ -912,6 +979,21 @@ class FTOL6XColorizer(FTOL3TColorizer):
             "RBWZ": colors['black'],
         }
     
+    def get_equivalences(self):
+        return """\
+{Y1 Y2 Y3}
+{W1 W2 W3}
+{G1 G2 G3}
+{P1 P2}
+{R1 R2}
+{B1 B2}
+{O1 O2 O3}
+{Z1 Z2 Z3}
+{W R G P O B Z Y}
+{WRGP WPOB WBZR}
+1: WRGP WPOB WBZR\
+"""
+    
 class FTOL3CColorizer(FTOL3TColorizer):
     def get_override_colors(self):
         return  {
@@ -922,6 +1004,19 @@ class FTOL3CColorizer(FTOL3TColorizer):
             "Z1": colors['black'],
             "O1": colors['black'],
         }
+    
+    def get_equivalences(self):
+        return """\
+{Y1 Y2 Y3}
+{W1 W2 W3}
+{G1 G2 G3}
+{P1 P2}
+{R1 R2}
+{B1 B2}
+{O1 O2 O3}
+{Z1 Z2 Z3}
+{W R G P O B Z Y}\
+"""
 
 class FTOOLPColorizer(FTOL3TColorizer):
     def get_face_to_color(self) -> Dict[str, str]:
@@ -1265,6 +1360,9 @@ class SquareOneColorizer(BaseColorizer):
             "X": colors["ignore"]
         }
 
+    def get_prune_search_subgroup(self):
+        return "7 6 U D T t"
+
 class SquareOneOBLColorizer(SquareOneColorizer):
     def get_face_to_color(self):
         return {
@@ -1276,13 +1374,15 @@ class SquareOneOBLColorizer(SquareOneColorizer):
             "D": colors["white"],
             "X": colors["ignore"]
         }
-"""
+    
+    def get_equivalences(self):
+        return """\
 {UR UL UF UB}
 {DR DL DF DB}
 {X1 X2 X3 X4}
 {X5 X6 X7 X8}
 {UFL ULB UBR URF}
-{DLF DFR DRB DBL}
+{DLF DFR DRB DBL}\
 """
 
 def get_colorizer(name) -> BaseColorizer:

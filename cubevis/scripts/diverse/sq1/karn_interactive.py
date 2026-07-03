@@ -1,4 +1,4 @@
-from cubevis.scripts.karnotation import karnaukh_to_standard
+from cubevis.scripts.diverse.sq1.karnotation import karnaukh_to_standard
 
 algs = []
 while True:

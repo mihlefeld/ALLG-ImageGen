@@ -85,7 +85,7 @@ def translate_scamble(scramble: str):
         .replace("b", "B")
         )
 
-def get_jsons(puzzle: str, scrambles_path: Path, csv_path: Path, output_dir: Path, filter: list[str] = []):
+def gen_jsons(puzzle: str, scrambles_path: Path, csv_path: Path, output_dir: Path, filter: list[str] = []):
     colorizer = get_colorizer(puzzle)
     cut_auf_override = "5x5" in csv_path.as_posix().lower()
     needs_invert = colorizer.needs_invert()
@@ -159,4 +159,4 @@ def get_jsons(puzzle: str, scrambles_path: Path, csv_path: Path, output_dir: Pat
 
 
 if __name__ == "__main__":
-    get_jsons()
+    gen_jsons()

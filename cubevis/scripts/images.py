@@ -155,6 +155,12 @@ def gen_images(puzzle_name: str, input_path: Path, output_path: Path, filter: Li
             alg += " " + ref_rot
         batch_solver_inputs.append(alg)
         case_id += 1
+    with open(output_path / "_batch_solver_extra.txt", "w") as file:
+        file.write("Equivalences\n")
+        file.write(puzzle.get_equivalences() + "\n")
+        file.write("Prune search subgroup\n")
+        file.write(puzzle.get_prune_search_subgroup())
+    
     with open(output_path / "_batch_solver_def.txt", "w") as file:
         file.write(puzzle.cube.mdefs)
 
