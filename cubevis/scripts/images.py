@@ -172,9 +172,8 @@ def gen_images(colorizer_name: str, input_path: Path, output_path: Path, filter:
                 b = batch_solver_inputs.index(s)
                 print(f"Duplicate [{i}]: [{s}] ", *df.row(i))
                 print(f"First occurance [{b}] [{batch_solver_inputs[b]}]: ", *df.row(b))
-        
-        bs_str = ',\n'.join(batch_solver_inputs)
-        file.write(f"[\n{bs_str}\n]")
+                
+        file.write(make_batch_solver_string(batch_solver_inputs))
     
     with open(output_path.parent / "combined.json", "w") as file:
         json.dump(svg_strings, file)
@@ -183,7 +182,9 @@ def gen_images(colorizer_name: str, input_path: Path, output_path: Path, filter:
         "setups": batch_solver_inputs
     }
 
-
+def make_batch_solver_string(batch_solver_inputs):
+    bs_str = ',\n'.join(batch_solver_inputs)
+    return f"[\n{bs_str}\n]"
 
 if __name__ == "__main__":
     gen_images()

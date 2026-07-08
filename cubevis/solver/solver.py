@@ -45,6 +45,8 @@ class _CasesPerSecondColumn(ProgressColumn):
         speed = task.finished_speed or task.speed
         if speed is None:
             return Text("? case/s", style="progress.data.speed")
+        if speed < 1:
+            return Text(f"{1/speed:.2f} s/case", style="progress.data.speed")    
         return Text(f"{speed:,.2f} case/s", style="progress.data.speed")
 
 

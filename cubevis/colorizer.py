@@ -145,6 +145,12 @@ f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {self.width} {self.heig
     
     def get_definitions(self):
         return self.cube.mdefs
+    
+    def get_pre_adjust(self):
+        return "U"
+    
+    def get_post_adjust(self):
+        return "U"
 
 class SkewbColorizer(BaseColorizer):
     def __init__(self, pre_moves="") -> None:
@@ -226,6 +232,12 @@ class SkewbColorizer(BaseColorizer):
     
     def get_prune_search_subgroup(self):
         return "7 6 r l B b"
+    
+    def get_pre_adjust(self):
+        return ""
+    
+    def get_post_adjust(self):
+        return ""
 
 class SkewbL2LColorizer(SkewbColorizer):
     def __init__(self) -> None:
@@ -1364,6 +1376,12 @@ class SquareOneColorizer(BaseColorizer):
 
     def get_prune_search_subgroup(self):
         return "7 6 U D T t"
+    
+    def get_pre_adjust(self):
+        return "U D"
+    
+    def get_post_adjust(self):
+        return "U D"
 
 class SquareOneOBLColorizer(SquareOneColorizer):
     def get_face_to_color(self):
