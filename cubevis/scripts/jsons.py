@@ -124,6 +124,43 @@ def gen_jsons(puzzle: str, scrambles_path: Path, csv_path: Path, output_dir: Pat
         algs_info[case_id]['algset'] = algset
         case_id += 1
     
+    if scrambles_path.suffix == ".xlsx":
+        handle_excel(puzzle, scrambles_path, cut_auf_override, needs_invert, replace_2prime, needs_translate, needs_squan_translate, algs_info, scrambles, filter_set) 
+    elif scrambles_path.suffix == ".json":
+        handle_json(puzzle, scrambles_path, cut_auf_override, needs_invert, replace_2prime, needs_translate, needs_squan_translate, algs_info, scrambles, filter_set) 
+
+    save_json(algs_info, output_dir / 'algs_info.json')
+    save_json(scrambles, output_dir / 'scrambles.json')
+    save_json(algsets_info, output_dir / 'algsets_info.json')
+    save_json(groups_info, output_dir / 'groups_info.json')
+    save_json(selected_algsets, output_dir / 'selected_algsets.json')
+
+def handle_json(puzzle, scrambles_path, cut_auf_override, needs_invert, replace_2prime, needs_translate, needs_squan_translate, algs_info, scrambles, filter_set):
+    with open(scrambles_path) as file:
+        scrambles_dict = json.load(file)
+    cases = scrambles_dict['cases']
+    for case in cases:
+        case_scrambles = case['solutions']
+        case_id = case['index']
+        if len(case_scrambles) < 1:
+            print(f"No solution for case {case_id}.")
+        case_scrambles = [re.sub(r'\([^\)]*\) ', '', scr) for scr in case_scrambles if scr != ""]
+        if puzzle == "5x5-Hoya":
+            case_scrambles = list(map(replace_rur, case_scrambles))
+        if needs_invert:
+            case_scrambles = list(map(lambda x: naive_invert(x, replace_2prime), case_scrambles))
+        if needs_translate:
+            case_scrambles = list(map(translate_scamble, case_scrambles))
+        if cut_auf_override:
+            case_scrambles = list(map(remove_aufs, case_scrambles))
+        if needs_squan_translate:
+            case_scrambles = list(map(square_one_self_to_standard, case_scrambles))
+        if len(case_scrambles) == 0:
+            case_scrambles = ["ERROR"]
+        scrambles[case_id] = list(set(case_scrambles))
+        algs_info[case_id]['s'] = case_scrambles[0]
+
+def handle_excel(puzzle, scrambles_path, cut_auf_override, needs_invert, replace_2prime, needs_translate, needs_squan_translate, algs_info, scrambles, filter_set):
     scramble_df = pl.read_excel(scrambles_path)
     case_id = 1
     for i, c in enumerate(scramble_df.columns):
@@ -149,13 +186,7 @@ def gen_jsons(puzzle: str, scrambles_path: Path, csv_path: Path, output_dir: Pat
             case_scrambles = ["ERROR"]
         scrambles[case_id] = list(set(case_scrambles))
         algs_info[case_id]['s'] = case_scrambles[0]
-        case_id += 1 
-
-    save_json(algs_info, output_dir / 'algs_info.json')
-    save_json(scrambles, output_dir / 'scrambles.json')
-    save_json(algsets_info, output_dir / 'algsets_info.json')
-    save_json(groups_info, output_dir / 'groups_info.json')
-    save_json(selected_algsets, output_dir / 'selected_algsets.json')
+        case_id += 1
 
 
 if __name__ == "__main__":

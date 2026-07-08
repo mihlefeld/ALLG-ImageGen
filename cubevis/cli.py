@@ -3,9 +3,11 @@ from cubevis.scripts.jsons import gen_jsons
 from cubevis.scripts.images import gen_images
 from cubevis.scripts.combine_scrambles import write_missing_scrambles, combine_scrambles
 from cubevis.scripts.bin_search_dupes import bin_search_dupes
+from cubevis.scripts.full_pipeline import full_pipeline
 
 app = typer.Typer()
 
+app.command("full")(full_pipeline)
 app.command("jsons")(gen_jsons)
 app.command("images")(gen_images)
 app.command("write-missing")(write_missing_scrambles)

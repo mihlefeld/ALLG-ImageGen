@@ -1,6 +1,10 @@
 import re
 import sys
 
+
+def sign(num):
+    return 1 if num >= 0 else -1
+
 class Cube:
     def __init__(self, mdefs) -> None:
         self.mdefs = mdefs
@@ -138,6 +142,34 @@ class Cube:
             inverse_cycle = cycle[::-1]
             move_def += " (" + " ".join([f"{p}" + f"+{o % len(inverse_cycle[0][0])}" * (o != 0) for (p, o) in inverse_cycle]) + ")"
         return move_def
+
+    def normalize_moves(self, alg):
+        ms = re.findall(r"([\d]?[A-z]+)([\d']*)", alg)
+        clean_ms = []
+        for move, number_prime in ms:
+            number = re.search(r"\d", number_prime)
+            move_mult = 1
+            if number is not None:
+                move_mult = int(number.group(0))
+            inverted = len(re.findall(r"'", number_prime)) % 2 == 1
+            if inverted:
+                move_mult *= -1
+            max_moves = self.max_cycles[move]
+            if abs(move_mult) % max_moves == 0:
+                continue
+            if abs(move_mult) > max_moves // 2:
+                move_mult = (max_moves - abs(move_mult)) * (-1 * sign(move_mult))
+            if abs(move_mult) == max_moves / 2:
+                move_mult = abs(move_mult)
+            move_string = move 
+            if abs(move_mult) > 1:
+                move_string += str(abs(move_mult))
+            if move_mult < 0:
+                move_string += "'"
+            clean_ms.append(move_string)
+        return " ".join(clean_ms)
+
+
 
 
 class Skewb(Cube):

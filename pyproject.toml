@@ -11,7 +11,9 @@ dynamic = ["version", "description"]
 dependencies = [
     "pandas",
     "scipy",
-    "typer"
+    "typer",
+    "rich",
+    "jinja2"
 ]
 [project.scripts]
 allg-gen = "cubevis.cli:app"

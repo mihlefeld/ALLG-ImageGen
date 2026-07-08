@@ -142,7 +142,9 @@ f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {self.width} {self.heig
 
     def get_prune_search_subgroup(self):
         return ""
-
+    
+    def get_definitions(self):
+        return self.cube.mdefs
 
 class SkewbColorizer(BaseColorizer):
     def __init__(self, pre_moves="") -> None:
@@ -223,7 +225,7 @@ class SkewbColorizer(BaseColorizer):
         }
     
     def get_prune_search_subgroup(self):
-        return "7 6 R U L B F"
+        return "7 6 r l B b"
 
 class SkewbL2LColorizer(SkewbColorizer):
     def __init__(self) -> None:

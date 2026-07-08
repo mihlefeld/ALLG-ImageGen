@@ -121,8 +121,8 @@ def clean_alg_pyraminx(alg: str):
     return alg
 
 
-def gen_images(puzzle_name: str, input_path: Path, output_path: Path, filter: List[str] = []):
-    puzzle: BaseColorizer = get_colorizer(puzzle_name)
+def gen_images(colorizer_name: str, input_path: Path, output_path: Path, filter: List[str] = []):
+    puzzle: BaseColorizer = get_colorizer(colorizer_name)
     os.makedirs(output_path, exist_ok=True)
     batch_solver_inputs = []
     df = (pl.read_csv(input_path, infer_schema_length=1000).filter(pl.col('Algs').is_not_null(), pl.col('Algs') != ""))
@@ -133,16 +133,16 @@ def gen_images(puzzle_name: str, input_path: Path, output_path: Path, filter: Li
             continue
         filename =  output_path / f"{case_id}.svg"
         alg = row['Algs'].split("\n")[0]
-        if "Pyraminx" in puzzle_name:
+        if "Pyraminx" in colorizer_name:
             alg = clean_alg_pyraminx(alg)
         alg = clean_alg(alg, puzzle.cube)
-        if "Skewb" in puzzle_name:
+        if "Skewb" in colorizer_name:
             alg = clean_alg([alg for alg in row["Algs"].split("\n") if "H" not in alg and "S" not in alg][0], puzzle.cube)
-        if "FTO" in puzzle_name:
+        if "FTO" in colorizer_name:
             alg = clean_alg_fto(alg)
         
         override_piece = None
-        if "Pyraminx" in puzzle_name and "TL4E-R L" in row['Algset']:
+        if "Pyraminx" in colorizer_name and "TL4E-R L" in row['Algset']:
             override_piece = "BRD"
         puzzle.inverse(alg, filename, ref_rot_override=override_piece)
         svg_strings[case_id] = puzzle.create_svg()
@@ -153,6 +153,7 @@ def gen_images(puzzle_name: str, input_path: Path, output_path: Path, filter: Li
         ref_rot = puzzle.cube.to_reference_rotation(override_piece=override_piece)
         if ref_rot != "" and not isinstance(puzzle, ThreeByThreeZBLSColorizer):
             alg += " " + ref_rot
+        alg = puzzle.cube.normalize_moves(alg)
         batch_solver_inputs.append(alg)
         case_id += 1
     with open(output_path / "_batch_solver_extra.txt", "w") as file:
@@ -177,7 +178,10 @@ def gen_images(puzzle_name: str, input_path: Path, output_path: Path, filter: Li
     
     with open(output_path.parent / "combined.json", "w") as file:
         json.dump(svg_strings, file)
-        
+    return {
+        "df": df,
+        "setups": batch_solver_inputs
+    }
 
 
 
