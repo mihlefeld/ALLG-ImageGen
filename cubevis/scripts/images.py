@@ -1,5 +1,5 @@
 import argparse
-from cubevis import get_colorizer
+from cubevis.colorizer import get_colorizer
 from cubevis.colorizer import FTOColorizer, ThreeByThreeZBLSColorizer, BaseColorizer, SquareOneColorizer
 from cubevis.cube import FTORotations, SquareOne
 from typing import List

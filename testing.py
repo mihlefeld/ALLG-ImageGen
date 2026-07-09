@@ -1,9 +1,9 @@
 import os
-from cubevis.colorizer import *
+from cubevis.colorizer.fto import FTOFullColorizer, FTOBTLTColorizer
 from pathlib import Path
 
 def testing():
-    colorizers = [ThreeByThreeZBLSColorizer()]
+    colorizers = [FTOBTLTColorizer()]
     # for colorizer in colorizers:
     #     moves = list(colorizer.cube.moves.keys())
     #     colorizer_name = type(colorizer).__name__
@@ -19,7 +19,7 @@ def testing():
     # ff.scramble("x U r U2 x r U2 r U2' r' U2 l U2 3r' U2' r U2 r' U2' r' U x'", "test.svg")
     # ff.inverse("x U r U2 x r U2 r U2' r' U2 l U2 3r' U2' r U2 r' U2' r' U x'", "test-i.svg")
     col = colorizers[0]
-    col.inverse("R' U' M' U R U' r' U R", "test.svg")
+    col.scramble("BR U BR'", "test.svg")
 
 if __name__ == "__main__":
     testing()
