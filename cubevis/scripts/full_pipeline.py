@@ -13,7 +13,19 @@ from cubevis.solver.solver import run_batch, BatchInput, SubgroupSpec, SortingSp
 from pathlib import Path
 
 
-def full_pipeline(algset: str, colorizer_name: str, data: Path = Path('./data'), node_path: Path = Path("node"), alg_trainers: Path = Path("../Alg-Trainers"), override_prune: int | None =None, override_search: int | None = None, override_subgroup: str | None = None):
+def full_pipeline(
+        algset: str, 
+        colorizer_name: str, 
+        data: Path = Path('./data'), 
+        node_path: Path = Path("node"), 
+        alg_trainers: Path = Path("../Alg-Trainers"), 
+        override_prune: int | None =None, 
+        override_search: int | None = None, 
+        override_subgroup: str | None = None,
+        override_adjust: str | None = None,
+        override_preadjust: str | None = None,
+        override_postadjust: str | None = None,
+    ):
     console = Console()
     puzzle = "-".join(colorizer_name.split("-")[:-1])
     colorizer = get_colorizer(colorizer_name)
@@ -21,7 +33,6 @@ def full_pipeline(algset: str, colorizer_name: str, data: Path = Path('./data'),
     pictures_root = data_root / "pic"
     csv_file = data_root / f"{puzzle.lower()}{algset.lower()}.csv"
     json_file = csv_file.with_suffix(".json")
-    batch_solver_input = data_root / "pic" / "_batch_solver_input.txt"
     subgroups = []
     for row in colorizer.get_prune_search_subgroup().splitlines():
         subgroup = " ".join(row.split()[2:])
@@ -35,6 +46,22 @@ def full_pipeline(algset: str, colorizer_name: str, data: Path = Path('./data'),
         spec = SubgroupSpec(subgroup, prune, search)
         subgroups.append(spec)
     
+    # optional adjust move override
+    preadjust = colorizer.get_pre_adjust()
+    postadjust = colorizer.get_post_adjust()
+    if override_adjust == "none":
+        override_adjust = ""
+    if override_postadjust == "none":
+        override_postadjust = ""
+    if override_preadjust == "none":
+        override_postadjust = ""
+    if override_adjust is not None:
+        preadjust = override_adjust
+        postadjust = override_adjust
+    if override_preadjust is not None:
+        preadjust = override_preadjust
+    if override_postadjust is not None:
+        postadjust = override_postadjust
     output = gen_images(colorizer_name, csv_file, pictures_root)
     batch_solver_scrambles = output['setups']
     num_cases = len(output['df'])
@@ -72,8 +99,8 @@ def full_pipeline(algset: str, colorizer_name: str, data: Path = Path('./data'),
                 puzzle=colorizer.get_definitions(),
                 ignore=colorizer.get_equivalences(),
                 solve=make_batch_solver_string(missing_scrambles),
-                preAdjust=colorizer.get_pre_adjust(),
-                postAdjust=colorizer.get_post_adjust(),
+                preAdjust=preadjust,
+                postAdjust=postadjust,
                 subgroups=subgroups,
             )
             def on_message_missing(msg):
@@ -95,8 +122,8 @@ def full_pipeline(algset: str, colorizer_name: str, data: Path = Path('./data'),
             puzzle=colorizer.get_definitions(),
             ignore=colorizer.get_equivalences(),
             solve=make_batch_solver_string(batch_solver_scrambles),
-            preAdjust=colorizer.get_pre_adjust(),
-            postAdjust=colorizer.get_post_adjust(),
+            preAdjust=preadjust,
+            postAdjust=postadjust,
             subgroups=subgroups,
         )
         console.print(Panel(f"""[red]{inp.puzzle}

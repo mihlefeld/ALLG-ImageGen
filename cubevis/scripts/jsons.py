@@ -143,7 +143,7 @@ def handle_json(puzzle, scrambles_path, cut_auf_override, needs_invert, replace_
         case_scrambles = case['solutions']
         case_id = case['index']
         if len(case_scrambles) < 1:
-            print(f"No solution for case {case_id}.")
+            print(f"No solution for case {case_id} {algs_info[case_id]}.")
         case_scrambles = [re.sub(r'\([^\)]*\) ', '', scr) for scr in case_scrambles if scr != ""]
         if puzzle == "5x5-Hoya":
             case_scrambles = list(map(replace_rur, case_scrambles))
