@@ -6,11 +6,35 @@ import re
 from jinja2 import Environment, PackageLoader, select_autoescape
 from rich.console import Console
 from rich.panel import Panel
+from rich.prompt import Prompt, IntPrompt, InvalidResponse
 from cubevis.scripts.jsons import gen_jsons
 from cubevis.scripts.images import gen_images, make_batch_solver_string
 from cubevis.colorizer import get_colorizer
 from cubevis.solver.solver import run_batch, BatchInput, SubgroupSpec, SortingSpec
 from pathlib import Path
+
+
+# Matches typical cube move tokens: optional layer number, face/axis letter(s),
+# optional 'w' for wide, optional "2" and/or "'" (prime). Examples: R, U', R2, Rw, 3Rw', x, M2
+_MOVE_RE = re.compile(r"^\d*[A-Za-z]+w?['2]{0,2}$")
+
+
+class MovesPrompt(Prompt):
+    """Rich prompt for a whitespace-separated sequence of cube moves.
+
+    Accepts empty input. Rejects tokens that don't look like moves.
+    """
+
+    def process_response(self, value: str) -> str:
+        value = value.strip()
+        if not value:
+            return ""
+        bad = [tok for tok in value.split() if not _MOVE_RE.match(tok)]
+        if bad:
+            raise InvalidResponse(
+                f"[prompt.invalid]Not valid move tokens: {', '.join(bad)}"
+            )
+        return str(value.split())
 
 
 def full_pipeline(
@@ -169,13 +193,31 @@ def create_new_trainer(trainer_path: Path, data_root: Path, relevant_files: list
         autoescape=select_autoescape()
     )
     template_keys = {}
-    template_keys['max_algs_per_row'] = input("max_algs_per_row: ")
-    template_keys['pre_rotations'] = input("pre_rotations: ")
-    template_keys['post_rotations'] = input("post_rotations: ")
-    template_keys['pre_moves'] = input("pre_moves: ")
-    template_keys['post_moves'] = input("post_moves: ")
+    template_keys['max_algs_per_row'] = IntPrompt.ask(
+        "max_algs_per_row", default=8
+    )
+    template_keys['pre_rotations'] = MovesPrompt.ask(
+        "pre_rotations", default=""
+    )
+    template_keys['post_rotations'] = MovesPrompt.ask(
+        "post_rotations", default=""
+    )
+    template_keys['pre_moves'] = MovesPrompt.ask(
+        "pre_moves", default="U U' U2"
+    )
+    template_keys['post_moves'] = MovesPrompt.ask(
+        "post_moves", default="U U' U2"
+    )
     template_keys['puzzle'] = puzzle
     template_keys['algset'] = algset
+    index_json_entry = {
+        "name": algset,
+        "location": trainer_path.name
+    }
+    index_json_group = Prompt.ask(
+        "Algset group name:", default=puzzle
+    )
+    
     algsinfo = env.get_template("algsinfo.js.jinja").render(**template_keys)
     index = env.get_template("index.html.jinja").render(**template_keys)
     trainer_path.mkdir()
@@ -183,3 +225,14 @@ def create_new_trainer(trainer_path: Path, data_root: Path, relevant_files: list
     (trainer_path / "index.html").write_text(index)
     for file in relevant_files:
         shutil.copy(data_root / file, trainer_path / file)
+    
+    index_json = json.loads((trainer_path.parent / "index.json").read_text())
+    if index_json_group not in index_json:
+        index_json[index_json_group] = []
+    
+    for trainer_entry in index_json[index_json_group]:
+        if trainer_entry['name'] == trainer_path.name:
+            raise ValueError("Trainer path already exists in index.json")
+    
+    index_json[index_json_group].append(index_json_entry)
+    (trainer_path.parent / "index.json").write_text(json.dumps(index_json))
