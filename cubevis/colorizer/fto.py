@@ -361,9 +361,9 @@ class FTOLTBaseColorizer(FTOFullColorizer):
         return {
             "W": colors['yellow'],
             "B": colors['orange'],
-            "R": colors['blue'],
+            "R": colors['green'],
             "P": colors['ignore'],
-            "O": colors['green'],
+            "O": colors['blue'],
             "Y": colors['white'],
             "Z": colors['purple'],
             "G": colors['red']
@@ -387,7 +387,8 @@ class FTOLBTColorizer(FTOLTBaseColorizer):
     def get_override_colors(self):
         return {
             "B3": colors['orange'],
-            "R3": colors['blue'],
+            "R3": colors['green'],
+            "P3": colors['ignore']
         }
 
     def get_override_pieces(self):
@@ -402,6 +403,13 @@ class FTOLBTColorizer(FTOLTBaseColorizer):
             "P": colors['black'],
             "G1": colors['black'],
             "O1": colors['black'],
+
+            "WP": colors['black'],
+            "WB": colors['black'],
+            "WR": colors['black'],
+            "PW": colors['black'],
+            "BW": colors['black'],
+            "RW": colors['black'],
 
             "WBRZ": colors['black'],
             "BRWZ": colors['black'],
@@ -447,12 +455,17 @@ class FTOBTLTColorizer(FTOLTBaseColorizer):
             "PGRW": colors['black'],
             "RGPW": colors['black'],
 
-            "P": colors['black'],
-            "R": colors['black'],
+            "WP": colors['black'],
+            "WB": colors['black'],
+            "WR": colors['black'],
             "PW": colors['black'],
+            "BW": colors['black'],
             "RW": colors['black'],
+
+            "R": colors['black'],
             "B": colors['black'],
-            "BW": colors['black']
+            "W": colors['black'],
+            "P": colors['black'],
         }
     
     def get_prune_search_subgroup(self):

@@ -3,7 +3,7 @@ from cubevis.colorizer.fto import FTOFullColorizer, FTOBTLTColorizer, FTOLBTColo
 from pathlib import Path
 
 def testing():
-    colorizers = [FTOLBTColorizer()]
+    colorizers = [FTOBTLTColorizer()]
     # for colorizer in colorizers:
     #     moves = list(colorizer.cube.moves.keys())
     #     colorizer_name = type(colorizer).__name__
