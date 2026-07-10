@@ -74,12 +74,17 @@ class BaseColorizer:
         override_pieces = self.get_override_pieces()
         for position, (piece, ori) in self.cube.pieces.items():
             non_numeric_piece = "".join([c for c in piece if not c.isnumeric()])
+            last_digit = piece[-1] if piece[-1].isnumeric() else ""
             piece_stickers = self.make_stickers_from_piece(non_numeric_piece)
             sticker_positions = self.make_stickers_from_piece(position)
             for i in range(len(non_numeric_piece)):
                 ival = (i + ori) % len(non_numeric_piece)
                 try:
-                    if piece_stickers[i] in override_pieces:
+                    if last_digit != "" and piece_stickers[i] + last_digit in override_pieces:
+                        sticker_positions_to_color[sticker_positions[ival]] = (
+                            override_pieces[piece_stickers[i] + last_digit]
+                        )
+                    elif piece_stickers[i] in override_pieces:
                         sticker_positions_to_color[sticker_positions[ival]] = (
                             override_pieces[piece_stickers[i]]
                         )

@@ -361,12 +361,62 @@ class FTOLTBaseColorizer(FTOFullColorizer):
         return {
             "W": colors['yellow'],
             "B": colors['orange'],
-            "R": colors['green'],
+            "R": colors['blue'],
             "P": colors['ignore'],
             "O": colors['green'],
             "Y": colors['white'],
             "Z": colors['purple'],
             "G": colors['red']
+        }
+    
+class FTOLBTColorizer(FTOLTBaseColorizer):
+    def scramble(self, moves, path=None):
+        #moves = " ".join(["y'", moves, "y"])
+        return super().scramble(moves, path)
+    
+    def get_equivalences(self):
+        return """\
+{WBZR WPOB WRGP}
+1: WBZR WPOB WRGP
+{G1 O1 Z1 W1 W2 W3}
+"""
+    
+    def get_prune_search_subgroup(self):
+        return "6 6 R B U L"
+
+    def get_override_colors(self):
+        return {
+            "B3": colors['orange'],
+            "R3": colors['blue'],
+        }
+
+    def get_override_pieces(self):
+        return {
+            "R1": colors['black'],
+            "R2": colors['black'],
+            "B1": colors['black'],
+            "B2": colors['black'],
+            "Z1": colors['black'],
+            "Z2": colors['black'],
+            "W": colors['black'],
+            "P": colors['black'],
+            "G1": colors['black'],
+            "O1": colors['black'],
+
+            "WBRZ": colors['black'],
+            "BRWZ": colors['black'],
+            "RBWZ": colors['black'],
+            "ZBRW": colors['black'],
+
+            "WBOP": colors['black'],
+            "BOPW": colors['black'],
+            "OBPW": colors['black'],
+            "PBOW": colors['black'],
+
+            "WGPR": colors['black'],
+            "GPRW": colors['black'],
+            "PGRW": colors['black'],
+            "RGPW": colors['black'],
         }
 
 class FTOBTLTColorizer(FTOLTBaseColorizer):
