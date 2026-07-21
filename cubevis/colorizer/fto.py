@@ -426,6 +426,7 @@ class FTOLBTColorizer(FTOLTBaseColorizer):
             "PGRW": colors['black'],
             "RGPW": colors['black'],
         }
+    
 
 class FTOBTLTColorizer(FTOLTBaseColorizer):
     def scramble(self, moves, path=None):
@@ -474,6 +475,40 @@ class FTOBTLTColorizer(FTOLTBaseColorizer):
     def get_equivalences(self):
         return """\
 {R1 R2 R3 P1 P2 B1 B2}
+{WBZR WPOB WRGP}
+1: WBZR WPOB WRGP
+"""
+
+class FTOLTColorizer(FTOBTLTColorizer):
+    def get_override_pieces(self):
+        override = dict(**super().get_override_pieces())
+        override.pop("P")
+        override['P1'] = colors['black']
+        override['P2'] = colors['black']
+        return override
+
+    def get_prune_search_subgroup(self):
+        return "6 6 R BR F U"
+
+    def get_equivalences(self):
+        return """\
+{R1 R2 P1 P2 B1 B2}
+{WBZR WPOB WRGP}
+1: WBZR WPOB WRGP
+"""
+
+class FTOFTLTColorizer(FTOLTColorizer): 
+    def get_override_pieces(self):
+        override = dict(**super().get_override_pieces())
+        override['Y1'] = colors['black']
+        return override
+
+    def get_prune_search_subgroup(self):
+        return "6 6 R BR F U"
+
+    def get_equivalences(self):
+        return """\
+{R1 R2 P1 P2 B1 B2 Y2}
 {WBZR WPOB WRGP}
 1: WBZR WPOB WRGP
 """
