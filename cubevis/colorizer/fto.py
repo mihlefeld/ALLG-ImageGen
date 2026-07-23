@@ -488,7 +488,7 @@ class FTOLTColorizer(FTOBTLTColorizer):
         return override
 
     def get_prune_search_subgroup(self):
-        return "6 6 R BR F U"
+        return "6 7 R BR F U"
 
     def get_equivalences(self):
         return """\

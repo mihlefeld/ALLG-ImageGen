@@ -1,6 +1,6 @@
 from cubevis.colorizer.colorizer import BaseColorizer
 from cubevis.colorizer.fivebyfive import FiveByFiveColorizer, FiveByFiveHoyaColorizer, FiveByFiveL2EColorizer
-from cubevis.colorizer.fto import FTOColorizer, FTOL3CColorizer, FTOL3TColorizer, FTOL6XColorizer, FTOBTLTColorizer, FTOLBTColorizer, FTOFTLTColorizer
+from cubevis.colorizer.fto import FTOColorizer, FTOL3CColorizer, FTOL3TColorizer, FTOL6XColorizer, FTOBTLTColorizer, FTOLBTColorizer, FTOFTLTColorizer, FTOLTColorizer
 from cubevis.colorizer.megaminx import MegaminxColorizer, MegaminxLLColorizer, MegaminxOLLColorizer, MegaminxWVColorizer, MegaminxZBLSColorizer
 from cubevis.colorizer.pyraminx import PyraminxColorizer
 from cubevis.colorizer.skewb import SkewbColorizer, SkewbL2LColorizer
@@ -35,6 +35,7 @@ def get_colorizer(name) -> BaseColorizer:
         "FTO-L3T": FTOL3TColorizer,
         "FTO-L3C": FTOL3CColorizer,
         "FTO-L6X": FTOL6XColorizer,
+        "FTO-LT": FTOLTColorizer,
         "FTO-BTLT": FTOBTLTColorizer,
         "FTO-FTLT": FTOFTLTColorizer,
         "FTO-LBT": FTOLBTColorizer,

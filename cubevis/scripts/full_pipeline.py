@@ -226,7 +226,8 @@ def create_new_trainer(trainer_path: Path, data_root: Path, relevant_files: list
     for file in relevant_files:
         shutil.copy(data_root / file, trainer_path / file)
     
-    index_json = json.loads((trainer_path.parent / "index.json").read_text())
+    index_json_path = trainer_path.parent / "index.json"
+    index_json = json.loads(index_json_path.read_text(encoding="utf-8"))
     if index_json_group not in index_json:
         index_json[index_json_group] = []
     
@@ -235,4 +236,7 @@ def create_new_trainer(trainer_path: Path, data_root: Path, relevant_files: list
             raise ValueError("Trainer path already exists in index.json")
     
     index_json[index_json_group].append(index_json_entry)
-    (trainer_path.parent / "index.json").write_text(json.dumps(index_json))
+    index_json_path.write_text(
+        json.dumps(index_json, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
