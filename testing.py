@@ -19,9 +19,9 @@ def testing():
     # ff.scramble("x U r U2 x r U2 r U2' r' U2 l U2 3r' U2' r U2 r' U2' r' U x'", "test.svg")
     # ff.inverse("x U r U2 x r U2 r U2' r' U2 l U2 3r' U2' r U2 r' U2' r' U x'", "test-i.svg")
     col = colorizers[0]
-    col.scramble("B F' BL F' BL' F2 B'", "test.svg") 
-    col.scramble("F' Rw R' U' Rw' F R F BR U' BR' U'", "test1.svg") 
-    col.scramble("B' U' B L U F' U' F L' B' U B", "test2.svg") 
+    col.scramble("BR U BR' U' R' F BR' F' BR R U'", "test.svg") 
+    #col.scramble("F' Rw R' U' Rw' F R F BR U' BR' U'", "test1.svg") 
+    #col.scramble("B' U' B L U F' U' F L' B' U B", "test2.svg") 
     #col.scramble("BR U BR'", "test2.svg") 
 
 
