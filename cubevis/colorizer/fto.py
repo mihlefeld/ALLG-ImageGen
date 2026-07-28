@@ -124,6 +124,29 @@ class FTOL3TColorizer(FTOColorizer):
 {W R G P O B Z Y}\
 """
 
+class FTOLLColorizer(FTOL3TColorizer):
+    def get_override_colors(self):
+        return {
+            "G3": colors["black"],
+            "Z3": colors["black"],
+            "O3": colors["black"],
+            "G1": colors["black"],
+            "Z1": colors["black"],
+            "O1": colors["black"],
+        }
+
+    def get_equivalences(self):
+        return """\
+{Y1 Y2 Y3}
+{W1 W2 W3}
+{G1 G2 G3}
+{P1 P2}
+{R1 R2}
+{B1 B2}
+{O1 O2 O3}
+{Z1 Z2 Z3}
+{W R G P O B Z Y}\
+"""
 
 class FTOL6XColorizer(FTOL3TColorizer):
     def get_override_colors(self):
