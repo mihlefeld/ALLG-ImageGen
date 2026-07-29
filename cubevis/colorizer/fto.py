@@ -97,7 +97,6 @@ class FTOColorizer(BaseColorizer):
     def get_prune_search_subgroup(self):
         return "8 7 R U L B BR"
 
-
 class FTOL3TColorizer(FTOColorizer):
     def get_face_to_color(self) -> Dict[str, str]:
         return {
@@ -119,7 +118,7 @@ class FTOL3TColorizer(FTOColorizer):
 {P1 P2}
 {R1 R2}
 {B1 B2}
-{O2 O2}
+{O2 O3}
 {Z2 Z3}
 {W R G P O B Z Y}\
 """
