@@ -2,6 +2,7 @@ from collections import defaultdict
 from pathlib import Path
 from cubevis.cube import FTO
 from cubevis.colorizer import FTOLLColorizer
+from cubevis.scripts.images import clean_alg_fto
 import polars as pl
 import re
 
@@ -99,7 +100,7 @@ transformed_algs = []
 color = FTOLLColorizer()
 for case_id, algs in enumerate(df['Algs']):
     first_alg = algs.splitlines()[0]
-    svg = color.scramble(color.inverse(first_alg))
+    svg = color.scramble(color.inverse(clean_alg_fto(first_alg.replace("(", "").replace(")", ""))))
     rep = get_l6x_case_rep(svg)
     auf_fix = 0
     for i in range(3):
@@ -115,12 +116,98 @@ for case_id, algs in enumerate(df['Algs']):
     for alg in algs.splitlines():
         new_algs.append(fix_auf_and_maybe_make_eif(alg, auf_fix))
     transformed_algs.append("\n".join(new_algs))
+change_auf_per_case = {
+    "T1": 1,
+    "T2": 1,
+    "T5": 1,
+    "H4": 1,
+    "H6": 1,
+    "H8": 1,
+    "H10": 1,
+    "D5": 1,
+    "D7": 1,
+    "D8": 2,
+    "D9": 1,
+    "D10": 2,
+    "D12": 2,
+    "D13": 1,
+    "D14": 1,
+    "D16": 2,
+    "C2": 2,
+}
+
+fixed_auf_algs = []
+for i, algs in enumerate(transformed_algs):
+    case_id += 1
+    group = df[i, "Group"]
+    if group not in change_auf_per_case:
+        fixed_auf_algs.append(algs)
+        continue
+
+    transformed = []
+    for alg in algs.splitlines():
+        matches = re.search(r"\(U'?\)", alg)
+        if matches is None:
+            current_auf = 0
+        elif matches.group(0) == "(U)":
+            current_auf = 1
+        elif matches.group(0) == "(U')":
+            current_auf = 2
+        new_auf = (current_auf - change_auf_per_case[group]) % 3
+        if alg.startswith("{U,R}"):
+            prefix = "{U,R} "
+            alg = " ".join(alg.split()[1:])
+        else:
+            prefix = ""
+        move = ["", "U ", "U' "][new_auf]
+        if matches is None:
+            alg = prefix + move + alg
+        if matches is not None:
+            alg = prefix + re.sub(r"\(U'?\) ", move, alg)
+        transformed.append(alg)
+    fixed_auf_algs.append("\n".join(transformed))
+        
 
 group_order = "T0 T1 T2 T3 T4 T5 H1 H2 H3 H4 H5 H6 H7 H8 H9 H10 D1 D2 D3 D4 D5 D6 D7 D8 D9 D10 D11 D12 D13 D14 D15 D16 C1 C2 C3 C4".split()
 group_order = {v: k for k, v in enumerate(group_order)}
+
+def get_case_name(algs):
+    alg = algs.splitlines()[0]
+    svg = color.scramble(color.inverse(clean_alg_fto(alg.replace("(", "").replace(")", ""))))
+    group_name = df[i, "Group"]
+    pieces = color.cube.pieces
+    twist_state = pieces['WPOB'][1], pieces['WBZR'][1], pieces['WRGP'][1]
+    twist_letter = "o"
+    match twist_state:
+        case (2, 2, 0):
+            twist_letter = "r"
+        case (0, 2, 2):
+            twist_letter = "l"
+        case (2, 0, 2):
+            twist_letter = "b"
+    if group_name in ["T0", "H1", "H2", "D1", "D2", "D3", "D4", "C1", "C3"] and twist_letter != "o":
+        twist_letter = "b"
+    fc, rc, lc, edge = pieces["WRGP"][0], pieces["WBZR"][0], pieces["WPOB"][0], pieces["WR"][0][1]
+    perm_state = edge in fc, edge in lc, edge in rc
+    perm_letter = "0"
+    match perm_state:
+        case (True, True, False):
+            perm_letter = "-"
+        case (True, False, True):
+            perm_letter = ""
+        case (False, True, True):
+            perm_letter = "+"
+    return group_name + "<>" + twist_letter + perm_letter
+
+new_names = []
+for i, algs in enumerate(transformed_algs):
+    group = df[i, "Group"]
+    new_names.append(get_case_name(algs))
+
+
 df = (
     df.with_columns(
-        Algs=pl.Series(transformed_algs)
+        Algs=pl.Series(fixed_auf_algs)
     )
     .sort(
         by=(pl.col("Group").replace_strict(group_order, return_dtype=pl.Int64), "Name"
@@ -130,6 +217,7 @@ df = (
         "Group", 
         "Algs",
         Name=pl.arange(1, 1+len(df)), 
+        NameProposed=pl.Series(new_names),
         Movecount="Movecount", 
         Setup="Setup"
     )

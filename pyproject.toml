@@ -13,7 +13,8 @@ dependencies = [
     "scipy",
     "typer",
     "rich",
-    "jinja2"
+    "jinja2",
+    "odfpy"
 ]
 [project.scripts]
 allg-gen = "cubevis.cli:app"
