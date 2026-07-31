@@ -1,5 +1,7 @@
 from collections import defaultdict
 from pathlib import Path
+from cubevis.cube import FTO
+from cubevis.colorizer import FTOLLColorizer
 import polars as pl
 import re
 
@@ -11,12 +13,12 @@ def auf(canonical):
     return tuple(new_canonical)
 
 
-def get_l6x_case_rep(path):
+def get_l6x_case_rep(svg: str):
     color_regex = re.compile(r"'#[A-Fa-f0-9]+'")
     color_1_line = 8
     color_2_line = 15
     color_3_line = 22
-    image = Path(path).read_text().splitlines()
+    image = svg.splitlines()
     color_to_canonical = {}
     for i, line in enumerate([color_1_line, color_2_line, color_3_line]):
         color_to_canonical[color_regex.search(image[line]).group(0)] = i
@@ -69,26 +71,68 @@ rep_to_case_name = {
 }
 case_rep_to_id = defaultdict(list)
 case_id_to_l6x_name = {}
-for svg in Path("data/FTO/LL/pic").glob("*.svg"):
-    case_id = int(svg.with_suffix("").name)
+df = pl.read_csv("data/FTO/LL/ftoll_semi_old.csv")
+
+def fix_auf_and_maybe_make_eif(alg: str, auf_fix: int):
+    subs = {
+        "br": "r",
+        "BR": "R",
+        "R": "F",
+    }
+    current_auf_numeric = 0
+    if alg.startswith("("):
+        split_alg = alg.split()
+        current_auf = split_alg[0][1:-1]
+        if "'" in current_auf:
+            current_auf_numeric = 2
+        else:
+            current_auf_numeric = 1
+        alg = " ".join(split_alg[1:])
+    new_auf_numeric = ( current_auf_numeric - auf_fix) % 3
+    new_prefix = ["", "(U) ", "(U') "][new_auf_numeric]
+    alg = new_prefix + alg
+    if len(re.findall("BR", alg)) > 2 and " r" not in alg:
+        alg = "{U,R} " + re.sub("|".join(re.escape(k) for k in subs.keys()), lambda x: subs[x.group(0)], alg)
+    return alg
+
+transformed_algs = []
+color = FTOLLColorizer()
+for case_id, algs in enumerate(df['Algs']):
+    first_alg = algs.splitlines()[0]
+    svg = color.scramble(color.inverse(first_alg))
     rep = get_l6x_case_rep(svg)
+    auf_fix = 0
     for i in range(3):
         if rep in case_rep_to_id:
             case_rep_to_id[rep].append(case_id)
             break
         else:
             rep = auf(rep)
+            auf_fix += 1
         if i == 2:
             case_rep_to_id[rep].append(case_id)
+    new_algs = []
+    for alg in algs.splitlines():
+        new_algs.append(fix_auf_and_maybe_make_eif(alg, auf_fix))
+    transformed_algs.append("\n".join(new_algs))
 
-    l6x_name = rep_to_case_name[rep]
-    case_id_to_l6x_name[case_id] = l6x_name
-
-case_l6x_names = sorted(case_id_to_l6x_name.items())
-df = pl.read_csv("data/FTO/LL/ftoll.csv")
-df = df.with_columns(Group=pl.Series([x for _, x in case_l6x_names]))
 group_order = "T0 T1 T2 T3 T4 T5 H1 H2 H3 H4 H5 H6 H7 H8 H9 H10 D1 D2 D3 D4 D5 D6 D7 D8 D9 D10 D11 D12 D13 D14 D15 D16 C1 C2 C3 C4".split()
 group_order = {v: k for k, v in enumerate(group_order)}
-df = df.sort(by=(pl.col("Group").replace(group_order), "Name")).select("Algset", "Group", Oldname="Name", Algs="Algs", Name=pl.arange(1, 1+len(df)), Movecount="Movecount", Setup="Setup")
-df.write_csv("data/FTO/LL/ftoll_improved.csv")
+df = (
+    df.with_columns(
+        Algs=pl.Series(transformed_algs)
+    )
+    .sort(
+        by=(pl.col("Group").replace_strict(group_order, return_dtype=pl.Int64), "Name"
+    ))
+    .select(
+        "Algset", 
+        "Group", 
+        "Algs",
+        Name=pl.arange(1, 1+len(df)), 
+        Movecount="Movecount", 
+        Setup="Setup"
+    )
+)
+df.write_csv("data/FTO/LL/ftoll.csv")
 print()
