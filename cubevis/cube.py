@@ -113,6 +113,15 @@ class Cube:
         self.reset()
         self.move(moves)
 
+    def inverse(self, moves):
+        moves = re.findall(r"\d?[A-z]+'?\d?'?", moves)
+        inverted_moves = []
+        for move in moves[::-1]:
+            inverted = move[:-1] if move[-1] == "'" else move + "'"
+            inverted_moves.append(inverted)
+        scramble = " ".join(inverted_moves)
+        self.scramble(scramble)
+
     def debug(self):
         for loc, piece in self.pieces.items():
             print(loc, piece)

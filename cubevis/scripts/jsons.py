@@ -118,10 +118,10 @@ def gen_jsons(puzzle: str, scrambles_path: Path, csv_path: Path, output_dir: Pat
         groups_info[group_unique].append(case_id)
         if group_unique not in algsets_info[algset]:
             algsets_info[algset].append(group_unique)
-        algs_info[case_id]['a'] = algs
-        algs_info[case_id]['name'] = name
-        algs_info[case_id]['group'] = group
-        algs_info[case_id]['algset'] = algset
+        algs_info[str(case_id)]['a'] = algs
+        algs_info[str(case_id)]['name'] = name
+        algs_info[str(case_id)]['group'] = group
+        algs_info[str(case_id)]['algset'] = algset
         case_id += 1
     
     if scrambles_path.suffix == ".xlsx":
@@ -129,6 +129,7 @@ def gen_jsons(puzzle: str, scrambles_path: Path, csv_path: Path, output_dir: Pat
     elif scrambles_path.suffix == ".json":
         handle_json(puzzle, scrambles_path, cut_auf_override, needs_invert, replace_2prime, needs_translate, needs_squan_translate, algs_info, scrambles, filter_set) 
 
+    print(output_dir / "algs_info.json")
     save_json(algs_info, output_dir / 'algs_info.json')
     save_json(scrambles, output_dir / 'scrambles.json')
     save_json(algsets_info, output_dir / 'algsets_info.json')
@@ -157,8 +158,8 @@ def handle_json(puzzle, scrambles_path, cut_auf_override, needs_invert, replace_
             case_scrambles = list(map(square_one_self_to_standard, case_scrambles))
         if len(case_scrambles) == 0:
             case_scrambles = ["ERROR"]
-        scrambles[case_id] = list(set(case_scrambles))
-        algs_info[case_id]['s'] = case_scrambles[0]
+        scrambles[str(case_id)] = list(set(case_scrambles))
+        algs_info[str(case_id)]['s'] = case_scrambles[0]
 
 def handle_excel(puzzle, scrambles_path, cut_auf_override, needs_invert, replace_2prime, needs_translate, needs_squan_translate, algs_info, scrambles, filter_set):
     scramble_df = pl.read_excel(scrambles_path)
@@ -184,8 +185,8 @@ def handle_excel(puzzle, scrambles_path, cut_auf_override, needs_invert, replace
             case_scrambles = list(map(square_one_self_to_standard, case_scrambles))
         if len(case_scrambles) == 0:
             case_scrambles = ["ERROR"]
-        scrambles[case_id] = list(set(case_scrambles))
-        algs_info[case_id]['s'] = case_scrambles[0]
+        scrambles[str(case_id)] = list(set(case_scrambles))
+        algs_info[str(case_id)]['s'] = case_scrambles[0]
         case_id += 1
 
 

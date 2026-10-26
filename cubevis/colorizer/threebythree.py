@@ -235,3 +235,83 @@ class ThreeByThreeZBLSColorizer(ThreeByThreeColorizer):
 {UF UR UB UL}
 1: URF UBR ULB UFL\
 """
+
+class ThreeByThreeFSOColorizer(ThreeByThreeColorizer):
+    def get_face_to_color(self):
+        return {
+            "U": colors['yellow'],
+            "R": colors['green'],
+            "F": colors['red'],
+            "L": colors['blue'],
+            "B": colors['orange'],
+            "D": colors['white']
+        }
+
+    def get_override_pieces(self):
+        return {
+            "FU": colors["ignore"],
+            "RU": colors["ignore"],
+            "BU": colors["ignore"],
+            "LU": colors["ignore"],
+            "RFU": colors["ignore"],
+            "FRU": colors["ignore"],
+            # "DFR": colors["ignore"],
+            "LFU": colors["ignore"],
+            "FLU": colors["ignore"],
+            # "DFL": colors["ignore"],
+            "LBU": colors["ignore"],
+            "BLU": colors["ignore"],
+            # "DBL": colors["ignore"],
+            "RBU": colors["ignore"],
+            "BRU": colors["ignore"],
+            # "DBR": colors["ignore"],
+            "FR": colors['yellow'],
+            "RF": colors['ignore'],
+            "DFR": colors['ignore'],
+            "FDR": colors['yellow'],
+            "RDF": colors['ignore']
+        }
+
+    def needs_invert(self):
+        return True
+
+    def get_prune_search_subgroup(self):
+        return "7 7 R U D F"
+    
+    def get_equivalences(self):
+        return """\
+{UF UR UB UL}
+{URF UBR ULB UFL}
+"""
+
+class ThreeByThreeFSPColorizer(ThreeByThreeColorizer):
+    def get_face_to_color(self):
+        return {
+            "U": colors['yellow'],
+            "R": colors['green'],
+            "F": colors['red'],
+            "L": colors['blue'],
+            "B": colors['orange'],
+            "D": colors['white']
+        }
+    
+    def get_override_pieces(self):
+        return {
+            "DFR": colors['black'],
+            "FDR": colors['purple'],
+            "RDF": colors['ignore'],
+            "FR": colors['purple'],
+            "RF": colors['ignore']
+        }
+
+    def get_equivalences(self):
+        return super().get_equivalences()
+
+    def needs_invert(self):
+        return True
+
+    def get_prune_search_subgroup(self):
+        return "7 7 R U F"
+    
+    def get_equivalences(self):
+        return ""

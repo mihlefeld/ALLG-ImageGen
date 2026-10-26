@@ -29,6 +29,8 @@ def get_colorizer(name) -> BaseColorizer:
         "3x3-OLL": ThreeByThreeOLLColorizer,
         "3x3-CMLL": ThreeByThreeCMLLColorizer,
         "3x3-ZBLS": ThreeByThreeZBLSColorizer,
+        "3x3-FSO": ThreeByThreeFSOColorizer,
+        "3x3-FSP": ThreeByThreeFSPColorizer,
         "2x2": TwoByTwoColorizer,
         "2x2-LL": TwoByTwoLLColorizer,
         "FTO": FTOColorizer,
