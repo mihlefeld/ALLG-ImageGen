@@ -134,6 +134,9 @@ class FTOLLColorizer(FTOL3TColorizer):
             "O1": colors["black"],
         }
 
+    def get_prune_search_subgroup(self):
+        return "8 8 U BR F R B"
+
     def get_equivalences(self):
         return """\
 {Y1 Y2 Y3}
@@ -510,7 +513,7 @@ class FTOLTColorizer(FTOBTLTColorizer):
         return override
 
     def get_prune_search_subgroup(self):
-        return "6 7 R BR F U"
+        return "7 7 R BR F U"
 
     def get_equivalences(self):
         return """\

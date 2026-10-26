@@ -118,8 +118,8 @@ class BaseColorizer:
         svg += "</svg>"
         return svg
 
-    def inverse(self, moves, path=None, ref_rot_override=None):
-        moves = re.findall(r"\d?[A-z]+'?\d?'?", moves)
+    def inverse(self, moves: str, path=None, ref_rot_override=None):
+        moves = re.findall(r"\d?[A-z]+'?\d?'?", self.pre_moves + moves)
         rotations = []
         inverted_moves = []
         for move in moves[::-1]:
@@ -129,6 +129,7 @@ class BaseColorizer:
             inverted_moves.append(inverted)
         scramble = " ".join(inverted_moves)
         self.cube.scramble(" ".join(moves))
+        
         rotation = self.cube.to_reference_rotation(
             scramble=False, override_piece=ref_rot_override
         )
