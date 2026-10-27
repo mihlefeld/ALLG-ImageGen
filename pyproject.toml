@@ -14,7 +14,8 @@ dependencies = [
     "typer",
     "rich",
     "jinja2",
-    "odfpy"
+    "odfpy",
+    "polars>=2.1.0",
 ]
 [project.scripts]
 allg-gen = "cubevis.cli:app"
