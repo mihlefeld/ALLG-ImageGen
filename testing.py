@@ -3,8 +3,8 @@ from cubevis.colorizer.threebythree import *
 from pathlib import Path
 
 def testing():
-    colorizers = [ThreeByThreeEFSPColorizer()]
     # for colorizer in colorizers:
+    colorizers = [ThreeByThreeCFSPColorizer()]
     #     moves = list(colorizer.cube.moves.keys())
     #     colorizer_name = type(colorizer).__name__
     #     for move in moves:
@@ -23,6 +23,7 @@ def testing():
     #col.scramble("F' Rw R' U' Rw' F R F BR U' BR' U'", "test1.svg") 
     #col.scramble("B' U' B L U F' U' F L' B' U B", "test2.svg") 
     #col.scramble("BR U BR'", "test2.svg") 
+    
 
 
 if __name__ == "__main__":

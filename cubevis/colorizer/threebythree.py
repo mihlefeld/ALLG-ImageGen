@@ -304,9 +304,6 @@ class ThreeByThreeFSPColorizer(ThreeByThreeColorizer):
             "RF": colors['ignore']
         }
 
-    def get_equivalences(self):
-        return super().get_equivalences()
-
     def needs_invert(self):
         return True
 
@@ -382,22 +379,6 @@ class ThreeByThreeCFSPColorizer(ThreeByThreeColorizer):
     
     def get_override_pieces(self):
         return {
-            # "UFR": colors['yellow'],
-            # "FRU": colors['ignore'],
-            # "RFU": colors['ignore'],
-
-            # "UBL": colors['yellow'],
-            # "BLU": colors['ignore'],
-            # "LBU": colors['ignore'],
-
-            # "UBR": colors['yellow'],
-            # "BRU": colors['ignore'],
-            # "RBU": colors['ignore'],
-
-            # "UFL": colors['yellow'],
-            # "FLU": colors['ignore'],
-            # "LFU": colors['ignore'],
-
             "DFR": colors['black'],
             "FDR": colors['purple'],
             "RDF": colors['pink'],
@@ -410,9 +391,6 @@ class ThreeByThreeCFSPColorizer(ThreeByThreeColorizer):
             "RU": colors['ignore'],
             "LU": colors['ignore'],
         }
-
-    def get_equivalences(self):
-        return super().get_equivalences()
 
     def needs_invert(self):
         return True
