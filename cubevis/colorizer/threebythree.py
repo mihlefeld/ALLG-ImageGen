@@ -421,4 +421,4 @@ class ThreeByThreeCFSPColorizer(ThreeByThreeColorizer):
         return "7 7 R U F"
     
     def get_equivalences(self):
-        return "{URF UBR ULB UFL DFR}"
+        return "{UF UB UL UR FR}"
