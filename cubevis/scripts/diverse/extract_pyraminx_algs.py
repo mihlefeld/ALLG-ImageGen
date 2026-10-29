@@ -1,7 +1,8 @@
-import typer
-import polars as pl
 from collections import defaultdict
 from pathlib import Path
+
+import polars as pl
+import typer
 
 app = typer.Typer()
 

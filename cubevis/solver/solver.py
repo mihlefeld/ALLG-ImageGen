@@ -11,16 +11,16 @@ so :meth:`BatchInput.to_worker_dict` is a straight conversion.
 """
 
 from __future__ import annotations
-from pathlib import Path
 
 import dataclasses
 import json
 import subprocess
 import sys
+from collections.abc import Callable
 from contextlib import nullcontext
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Optional
+from typing import Any, Optional
 
 import typer
 from rich.progress import (
@@ -41,12 +41,12 @@ _BRIDGE_JS = Path(__file__).with_name("run_worker.js")
 class _CasesPerSecondColumn(ProgressColumn):
     """Renders the current processing rate in cases per second."""
 
-    def render(self, task: "Any") -> Text:  # type: ignore[override]
+    def render(self, task: Any) -> Text:  # type: ignore[override]
         speed = task.finished_speed or task.speed
         if speed is None:
             return Text("? case/s", style="progress.data.speed")
         if speed < 1:
-            return Text(f"{1/speed:.2f} s/case", style="progress.data.speed")    
+            return Text(f"{1 / speed:.2f} s/case", style="progress.data.speed")
         return Text(f"{speed:,.2f} case/s", style="progress.data.speed")
 
 
@@ -106,7 +106,7 @@ class BatchInput:
         }
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> "BatchInput":
+    def from_dict(cls, d: dict[str, Any]) -> BatchInput:
         subs = [SubgroupSpec(**s) for s in d.get("subgroups", [])]
         sortings = [SortingSpec(**s) for s in d.get("sorting", [])]
         return cls(
@@ -134,7 +134,7 @@ class CaseResult:
 
 @dataclass
 class BatchResult:
-    num_states: Optional[int] = None
+    num_states: int | None = None
     cases: list[CaseResult] = field(default_factory=list)
     move_weights: dict[str, float] = field(default_factory=dict)
     errors: list[str] = field(default_factory=list)
@@ -158,7 +158,7 @@ def run_batch(
     inp: BatchInput,
     *,
     node_path: Path = Path("node"),
-    on_message: Optional[MessageCallback] = None,
+    on_message: MessageCallback | None = None,
     show_progress: bool = True,
     max_old_space_size_mb: int = 1024 * 1024,
 ) -> BatchResult:
@@ -206,7 +206,9 @@ def run_batch(
         text=True,
         encoding="utf-8",
     )
-    assert proc.stdin is not None and proc.stdout is not None and proc.stderr is not None
+    assert (
+        proc.stdin is not None and proc.stdout is not None and proc.stderr is not None
+    )
 
     try:
         proc.stdin.write(json.dumps(inp.to_worker_dict()))
@@ -278,11 +280,13 @@ def run_batch(
                             description=f"BFS: {mval}",
                         )
             elif mtype == "next-state":
-                result.cases.append(CaseResult(
-                    index=int(mval["index"]),
-                    case_num=int(mval["num"]),
-                    setup=str(mval["setup"]),
-                ))
+                result.cases.append(
+                    CaseResult(
+                        index=int(mval["index"]),
+                        case_num=int(mval["num"]),
+                        setup=str(mval["setup"]),
+                    )
+                )
                 if progress is not None and task_id is not None:
                     progress.update(task_id, advance=1)
             elif mtype == "solution":
@@ -328,30 +332,41 @@ app = typer.Typer(
 
 @app.command()
 def solve(
-    input: Optional[Path] = typer.Option(
-        None, "--input", "-i",
-        exists=True, dir_okay=False, readable=True,
+    input: Path | None = typer.Option(
+        None,
+        "--input",
+        "-i",
+        exists=True,
+        dir_okay=False,
+        readable=True,
         help="Path to a JSON file with the 11 worker input fields.",
     ),
     stdin: bool = typer.Option(
-        False, "--stdin",
+        False,
+        "--stdin",
         help="Read the input JSON object from stdin instead of a file.",
     ),
-    output: Optional[Path] = typer.Option(
-        None, "--output", "-o",
-        dir_okay=False, writable=True,
+    output: Path | None = typer.Option(
+        None,
+        "--output",
+        "-o",
+        dir_okay=False,
+        writable=True,
         help="Path to write BatchResult JSON. Defaults to stdout.",
     ),
     node_path: str = typer.Option(
-        "node", "--node-path",
+        "node",
+        "--node-path",
         help="Node.js executable path (default: 'node' on PATH).",
     ),
     progress: bool = typer.Option(
-        True, "--progress/--no-progress",
+        True,
+        "--progress/--no-progress",
         help="Show a rich progress bar on stderr (default on).",
     ),
     verbose: bool = typer.Option(
-        False, "--verbose",
+        False,
+        "--verbose",
         help="Also print per-message worker output to stderr.",
     ),
 ) -> None:
@@ -375,7 +390,7 @@ def solve(
     try:
         result = run_batch(
             inp,
-            node_path=node_path,
+            node_path=Path(node_path),
             on_message=_log if verbose else None,
             show_progress=progress,
         )

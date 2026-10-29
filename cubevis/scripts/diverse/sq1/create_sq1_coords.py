@@ -1,5 +1,5 @@
-from scipy.spatial.transform import Rotation
 import numpy as np
+from scipy.spatial.transform import Rotation
 
 r2 = np.sqrt(2)
 side_len = 2*r2 + 1
@@ -58,6 +58,7 @@ points = np.array(points)
 original = len(points)
 
 import matplotlib.pyplot as plt
+
 plt.axis("equal")
 plt.scatter(points[:original, 0], points[:original, 1])
 

@@ -1,11 +1,14 @@
 import argparse
-import polars as pl
 import json
 import pathlib
 import re
-from cubevis.colorizer import get_colorizer
-from pathlib import Path
 from collections import defaultdict
+from pathlib import Path
+
+import polars as pl
+
+from cubevis.colorizer import get_colorizer
+
 
 def save_json(obj, filename):
     with open(filename, 'w', encoding="UTF-8") as file:

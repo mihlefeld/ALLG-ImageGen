@@ -1,7 +1,9 @@
-import polars as pl
-from collections import defaultdict
 import json
+from collections import defaultdict
 from pathlib import Path
+
+import polars as pl
+
 
 def main():
     case_id = 1

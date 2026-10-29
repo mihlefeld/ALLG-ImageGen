@@ -1,18 +1,20 @@
-import typer 
 import json
-import shutil
 import logging
 import re
+import shutil
+from pathlib import Path
+
+import typer
 from jinja2 import Environment, PackageLoader, select_autoescape
 from rich.console import Console
 from rich.panel import Panel
-from rich.prompt import Prompt, IntPrompt, InvalidResponse
-from cubevis.scripts.jsons import gen_jsons
-from cubevis.scripts.images import gen_images, make_batch_solver_string
-from cubevis.colorizer import get_colorizer
-from cubevis.solver.solver import run_batch, BatchInput, SubgroupSpec, SortingSpec
-from pathlib import Path
+from rich.prompt import IntPrompt, InvalidResponse, Prompt
 
+from cubevis.colorizer import get_colorizer
+from cubevis.scripts.images import gen_images, make_batch_solver_string
+from cubevis.scripts.jsons import gen_jsons
+from cubevis.solver.solver import (BatchInput, SortingSpec, SubgroupSpec,
+                                   run_batch)
 
 # Matches typical cube move tokens: optional layer number, face/axis letter(s),
 # optional 'w' for wide, optional "2" and/or "'" (prime). Examples: R, U', R2, Rw, 3Rw', x, M2

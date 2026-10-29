@@ -1,8 +1,11 @@
+import re
+from pathlib import Path
+
 import polars as pl
 import typer
-import re
+
 from cubevis.scripts.diverse.sq1.karnotation import karnaukh_to_standard
-from pathlib import Path
+
 app = typer.Typer()
 
 @app.command()

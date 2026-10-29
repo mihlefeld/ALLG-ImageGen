@@ -1,9 +1,11 @@
-import typer 
-from cubevis.scripts.jsons import gen_jsons
-from cubevis.scripts.images import gen_images
-from cubevis.scripts.combine_scrambles import write_missing_scrambles, combine_scrambles
+import typer
+
 from cubevis.scripts.bin_search_dupes import bin_search_dupes
+from cubevis.scripts.combine_scrambles import (combine_scrambles,
+                                               write_missing_scrambles)
 from cubevis.scripts.full_pipeline import full_pipeline
+from cubevis.scripts.images import gen_images
+from cubevis.scripts.jsons import gen_jsons
 
 app = typer.Typer()
 

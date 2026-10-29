@@ -1,6 +1,9 @@
-import typer
 from pathlib import Path
+
+import typer
+
 from cubevis.scripts.images import gen_images
+
 app = typer.Typer()
 
 @app.command()

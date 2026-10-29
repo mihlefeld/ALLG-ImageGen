@@ -1,5 +1,7 @@
-import polars as pl
 from pathlib import Path
+
+import polars as pl
+
 
 def write_missing_scrambles(batch_solver_input: Path, scrambles: Path, batch_solver_output: Path):
     """

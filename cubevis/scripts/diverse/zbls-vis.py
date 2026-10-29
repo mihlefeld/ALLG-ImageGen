@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
-from scipy.spatial.transform import Rotation
-
 import numpy as np
+from scipy.spatial.transform import Rotation
 
 center = np.array([0, 0])
 rot_matrix = Rotation.from_rotvec([0, 0, np.deg2rad(360/6)]).as_matrix()[:2, :2]

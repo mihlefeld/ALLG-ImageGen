@@ -1,5 +1,6 @@
 from pathlib import Path
 
+
 def read_input(path: Path):
     return path.read_text().splitlines()[1:-1]
 

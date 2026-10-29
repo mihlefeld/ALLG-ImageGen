@@ -1,8 +1,10 @@
 import argparse
 import json
 import pathlib
-import pandas as pd
 from collections import defaultdict
+
+import pandas as pd
+
 
 def main():
     parser = argparse.ArgumentParser()

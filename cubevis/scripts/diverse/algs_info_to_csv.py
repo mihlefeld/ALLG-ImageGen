@@ -1,8 +1,10 @@
 import argparse
 import json
-import pandas as pd
-from pathlib import Path
 import re
+from pathlib import Path
+
+import pandas as pd
+
 
 def main(input_path: Path, groups_path: Path, algsets_path: Path, output_path: Path):
     with open(input_path) as file:

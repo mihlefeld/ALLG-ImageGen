@@ -12,8 +12,8 @@ class Cube:
         self.moves = {}
         self.max_cycles = {}
         self.read_move_definitions(mdefs)
-    
-    def getName(self):
+
+    def getName(self) -> str:
         return "Cube"
 
     def read_move_definition(self, move):
@@ -47,8 +47,8 @@ class Cube:
         mdefs = move_definitions.split("\n")
         for mdef in mdefs:
             self.read_move_definition(mdef)
-        
-        for move in self.moves.keys():
+
+        for move in self.moves:
             cycles = 1
             self.move(move)
             while not self.is_solved():
@@ -60,10 +60,10 @@ class Cube:
                     break
             self.max_cycles[move] = cycles
 
-    def to_reference_rotation(self, scramble=True, override_piece=None):
+    def to_reference_rotation(self, scramble=True, override_piece=None) -> str:
         return ""
 
-    def move(self, m):
+    def move(self, m: str):
         if m == "":
             return
         ms = re.findall(r"[\d]?[A-z]+[\d']*", m)
@@ -77,7 +77,11 @@ class Cube:
                 move_count = int(num)
             for mod in re.findall(r"'", m):
                 move_count *= -1
-            move_name = re.search(r"[\d]?[A-z]+", m).group(0)
+            move_match = re.search(r"[\d]?[A-z]+", m)
+            if move_match is None:
+                print(f"Illegal_move \"{m}\", ignoring")
+                return
+            move_name = move_match.group(0)
             if move_name not in self.max_cycles:
                 print(f"Illegal move \"{move_name}\", ignoring")
                 return
@@ -86,9 +90,9 @@ class Cube:
             for i in range(move_count):
                 self.move(move_name)
             return
-        
+
         if m not in self.max_cycles:
-            print(f"Illegal move \"{move_name}\", ignoring")
+            print(f"Illegal move \"{m}\", ignoring")
             return
 
         cycles = self.moves[m]
@@ -106,9 +110,9 @@ class Cube:
                 self.pieces[dest] = piece
 
     def reset(self):
-        for k in self.pieces.keys():
+        for k in self.pieces:
             self.pieces[k] = (k, 0)
-    
+
     def scramble(self, moves):
         self.reset()
         self.move(moves)
@@ -143,7 +147,7 @@ class Cube:
                 curV = self.pieces[curKey]
                 cycle.append(curV)
             cycles.append(cycle)
-        
+
         move_def = f"{name}:"
         for cycle in cycles:
             if len(cycle) == 1 and cycle[0][1] == 0:
@@ -170,7 +174,7 @@ class Cube:
                 move_mult = (max_moves - abs(move_mult)) * (-1 * sign(move_mult))
             if abs(move_mult) == max_moves / 2:
                 move_mult = abs(move_mult)
-            move_string = move 
+            move_string = move
             if abs(move_mult) > 1:
                 move_string += str(abs(move_mult))
             if move_mult < 0:
@@ -189,19 +193,19 @@ r: (DFR-1 UBR-1 DBL-1) (DRB+1) (R B D)
 R: (URF-1 ULB-1 DRB-1) (UBR+1) (R U B)
 b: (ULB-1 DLF-1 DRB-1) (DBL+1) (L D B)
 B: (UBR-1 UFL-1 DBL-1) (ULB+1) (U L B)
-F: (UFL-1 UBR-1 DFR-1) (URF+1) (F U R) 
+F: (UFL-1 UBR-1 DFR-1) (URF+1) (F U R)
 f: (URF-1 DRB-1 DLF-1) (DFR+1) (F R D)
 S: (URF-1) (UFL+1) (ULB+1) (UBR-1) (R U) (F B)
 H: (URF+1) (UFL-1) (ULB-1) (UBR+1) (R U) (F B)
 s: (UBR-1) (ULB+1) (DRB-1) (DBL+1) (U D) (R B)
-h: (UBR+1) (ULB-1) (DRB+1) (DBL-1) (U D) (R B)      
+h: (UBR+1) (ULB-1) (DRB+1) (DBL-1) (U D) (R B)
 x: (F U B D) (URF+1 UBR-1 DRB+1 DFR-1) (UFL-1 ULB+1 DBL-1 DLF+1)
 y: (F L B R) (URF UFL ULB UBR) (DFR DLF DBL DRB)
 z: (U R D L) (URF-1 DFR+1 DLF-1 UFL+1) (UBR+1 DRB-1 DBL+1 ULB-1)""")
-        
+
     def getName(self):
         return "Skewb"
-    
+
     def to_reference_rotation(self, scramble=True, override_piece=None):
         solved_piece = "URF" if scramble else "DBL"
         pieces_backup = {k: v for k, v in self.pieces.items()}
@@ -213,6 +217,7 @@ z: (U R D L) (URF-1 DFR+1 DLF-1 UFL+1) (UBR+1 DRB-1 DBL+1 ULB-1)""")
                 self.move(fr + sr)
                 if self.pieces[solved_piece] == (solved_piece, 0):
                     return (fr + sr).strip()
+        return ""
 
 
 
@@ -234,10 +239,10 @@ x: (AEG-1 EIG-1 DIE LDE-1 LEA) (AE+1 EG EI+1 DE LE) (URF+1 UBR+1 RBH RHC RCF+1) 
 y: (RCF+1 LFD-1 LEA+1 BAG RBH-1) (RHC FCD LDE AEG BGH) (UR+0 UF+0 UL+0 UA+0 UB+0) (URF+0 UFL+0 ULA+0 UAB+0 UBR+0) (DI EI GI HI CI) (DIE EIG GIH+1 CHI-1 CID) (EG GH+1 CH+1 CD DE) (LA+1 BA RB+1 RF+1 LF+1) (FD LE AG BH RC) (FC LD AE BG RH) (F L A B R) (G H C D E)
 z: (UR RC CD+1 LD UL+1) (UF RF+1 FC FD+1 LF) (UA RB CH DI LE) (UB RH CI DE LA) (URF RCF+1 FCD+1 LFD UFL+1) (ULA+2 UBR RHC CID+1 LDE) (UAB RBH CHI DIE LEA) (U R C D L) (AE BA+1 BH HI+1 EI) (AG BG+1 GH GI+1 EG) (AEG BAG+2 BGH+2 GIH+2 EIG) (B H I E A)
 xl: (UR FC DI EG+1 BA+1) (UF FD DE+1 AE UA+1) (UL+1 LF LD LE LA+1) (UB+1 RF CD+1 EI AG) (URF FCD DIE+1 AEG UAB+2) (UFL+1 LFD LDE LEA+1 ULA+1) (UBR+2 RCF CID+1 EIG+1 BAG+2) (U F D E A) (RB+1 RC CI+1 GI BG) (RH CH+1 HI+1 GH BH) (RBH+2 RHC CHI+1 GIH BGH) (B R C I G)""")
-        
+
     def getName(self):
         return "Megaminx"
-    
+
     def to_reference_rotation(self, scramble=True, override_piece=None):
         pieces_backup = {k: v for k, v in self.pieces.items()}
         first_rotations = ["", "x ", "x2 ", "x2' ", "x' ", "y ", "y' ", "y2' ", "xl2 ", "xl2 y ", "xl2 y2 "]
@@ -248,7 +253,8 @@ xl: (UR FC DI EG+1 BA+1) (UF FD DE+1 AE UA+1) (UL+1 LF LD LE LA+1) (UB+1 RF CD+1
                 self.move(fr + sr)
                 if self.pieces["FCD"] == ("FCD", 0):
                     return (fr + sr).strip()
-        
+        return ""
+
 class TwoByTwo(Cube):
     def __init__(self) -> None:
         super().__init__("""U: (URF UFL ULB UBR)
@@ -261,10 +267,10 @@ x: (URF+1 UBR-1 DRB+1 DFR-1) (UFL-1 ULB+1 DBL-1 DLF+1)
 y: (URF UFL ULB UBR) (DFR DLF DBL DRB)
 z: (URF-1 DFR+1 DLF-1 UFL+1) (UBR+1 DRB-1 DBL+1 ULB-1)""")
 
-        
+
     def getName(self):
         return "2x2"
-    
+
     def to_reference_rotation(self, scramble=True, override_piece=None):
         pieces_backup = {k: v for k, v in self.pieces.items()}
         first_rotations = ["", "x ", "x2 ", "x' ", "z ", "z' "]
@@ -275,7 +281,8 @@ z: (URF-1 DFR+1 DLF-1 UFL+1) (UBR+1 DRB-1 DBL+1 ULB-1)""")
                 self.move(fr + sr)
                 if self.pieces["DBL"] == ("DBL", 0):
                     return (fr + sr).strip()
-    
+        return ""
+
 class ThreeByThree(Cube):
     def __init__(self) -> None:
         super().__init__("""U: (UF UL UB UR) (URF UFL ULB UBR)
@@ -302,10 +309,10 @@ E: (FR-1 BR-1 BL-1 FL-1) (F R B L)
 x: (UR BR DR FR) (URF+1 UBR-1 DRB+1 DFR-1) (UL BL DL FL) (UFL-1 ULB+1 DBL-1 DLF+1) (UF-1 UB-1 DB-1 DF-1) (U B D F)
 y: (UF UL UB UR) (URF UFL ULB UBR) (DF DL DB DR) (DFR DLF DBL DRB) (FR-1 FL-1 BL-1 BR-1) (F L B R)
 z: (UF-1 FR-1 DF-1 FL-1) (URF-1 DFR+1 DLF-1 UFL+1) (UB-1 BR-1 DB-1 BL-1) (UBR+1 DRB-1 DBL+1 ULB-1) (UR-1 DR-1 DL-1 UL-1) (U R D L)""")
-    
+
     def getName(self):
         return "3x3"
-    
+
     def to_reference_rotation(self, scramble=True, override_piece=None):
         pieces_backup = {k: v for k, v in self.pieces.items()}
         first_rotations = ["", "x ", "x2 ", "x' ", "z ", "z' "]
@@ -316,7 +323,8 @@ z: (UF-1 FR-1 DF-1 FL-1) (URF-1 DFR+1 DLF-1 UFL+1) (UB-1 BR-1 DB-1 BL-1) (UBR+1 
                 self.move(fr + sr)
                 if self.pieces["DBL"] == ("DBL", 0):
                     return (fr + sr).strip()
-    
+        return ""
+
 class Pyraminx(Cube):
     def __init__(self) -> None:
         super().__init__("""U: (BR FB RF) (BFR+1) (bfr+1)
@@ -334,13 +342,13 @@ Lw: (BRD+1 BFR FDR-1) (brd+1 bfr fdr-1) (RF RD+1 BR+1)
 Rw: (FBD-1 BFR BRD+1) (fbd-1 bfr brd+1) (FB+1 BR+1 BD)
 D:  (FBD BRD-1 FDR+1) (fbd brd-1 fdr+1) (DF+1 BD RD+1)
 x: (FDR BFR-1 BRD+1) (fdr bfr-1 brd+1) (RF+1 BR+1 RD) (FB BD DF) (FBD+1) (fbd+1)
-xl: (BFR+1 FBD-1 BRD) (bfr+1 fbd-1 brd) (FB+1 BD BR+1) (RF+1 DF RD+1) (FDR+1) (fdr+1) 
+xl: (BFR+1 FBD-1 BRD) (bfr+1 fbd-1 brd) (FB+1 BD BR+1) (RF+1 DF RD+1) (FDR+1) (fdr+1)
 y: (FDR+1 BRD FBD-1) (fdr+1 brd fbd-1) (DF+1 RD BD+1) (BR FB RF) (BFR+1) (bfr+1)
 z: (FDR+1 BFR-1 FBD) (fdr+1 bfr-1 fbd) (DF RF+1 FB+1) (BD+1 RD BR+1) (BRD-1) (brd-1)""")
-        
+
     def getName(self):
         return "Pyraminx"
-    
+
     def to_reference_rotation(self, scramble=True, override_piece=None):
         piece = "FBD"
         if override_piece is not None:
@@ -354,7 +362,8 @@ z: (FDR+1 BFR-1 FBD) (fdr+1 bfr-1 fbd) (DF RF+1 FB+1) (BD+1 RD BR+1) (BRD-1) (br
                 self.move(fr + sr)
                 if self.pieces[piece] == (piece, 0):
                     return (fr + sr).strip()
-            
+        return ""
+
 
 class FTO(Cube):
     def __init__(self) -> None:
@@ -421,7 +430,7 @@ K: (R1 B2 B1)
 W: (WRGP+2 WBZR+2 WPOB) (R1 R2 P1) (B1 B2 P2)
 C: (P1 P2 R2)\
 """)
-        
+
     def to_reference_rotation(self, scramble=True, override_piece=None):
         pieces_backup = {k: v for k, v in self.pieces.items()}
         first_rotations = ["", "t xl ", "t' ", "t ", "xr ", "xr' t ", "xl ", "xr' "]
@@ -433,7 +442,7 @@ C: (P1 P2 R2)\
                 if self.pieces["YZBO"] == ("YZBO", 0):
                     return (fr + sr).strip()
         return ""
-        
+
 """ equivalences
 {Y1 Y2 Y3}
 {W1 W2 W3}
@@ -479,7 +488,7 @@ FTO L3C
 {O1 O2 O3}
 {Z1 Z2 Z3}
 {W R G P O B Z Y}
-"""      
+"""
 
 class FiveByFive(Cube):
     def __init__(self) -> None:
@@ -524,7 +533,7 @@ M: (UF+1 DF+1 DB+1 UB+1) (U2 F2 D2 B6) (U6 F6 D6 B2) (F D B U)
 E: (FR+1 BR+1 BL+1 FL+1) (R4 B4 L4 F4) (R B L F) (R8 B8 L8 F8)
 rur: (UF UL UB FR) (URF+2 DFR+2 UFL ULB+2) (U1 F3 F5 U7) (U2 F4 U6 U8) (UF1+1 FR2 UF2 UL2+1) (UL1 UB1 FR1+1 DF2+1)
 lul: (UF FL UB UR) (URF+2 DLF+2 UFL+2 UBR) (U3 U5 F7 F1) (U2 U4 U6 F8) (UF1 FL1+1 UF2+1 UR1) (UB2 UR2+1 DF1+1 FL2)""")
-        
+
     def getName(self):
         return "5x5"
 """Equivalences and unique orientations
@@ -554,7 +563,7 @@ t: (X2 X5) (UBR DFR) (UR DR) (X3 X6) (URF DRB) (UF DB)
 U: (UFL ULB UBR URF) (UL UB UR UF) (X1 X2 X3 X4)
 D: (DLF DFR DRB DBL) (DF DR DB DL) (X5 X6 X7 X8)
 W: (UFL DFR) (UL DR) (X1 X6) (ULB DRB) (UB DB) (X2 X7) (UBR DBL) (UR DL) (X3 X8) (URF DLF) (UF DF) (X4 X5)""")
-        
+
     def to_self_notation(self, moves: str):
         if "/" in moves:
             parts = moves.split("/")

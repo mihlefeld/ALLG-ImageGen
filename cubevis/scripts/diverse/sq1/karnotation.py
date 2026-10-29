@@ -1,6 +1,8 @@
-from cubevis.colorizer import SquareOneColorizer
 import re
 from collections import OrderedDict
+
+from cubevis.colorizer import SquareOneColorizer
+
 
 def multiple_replace(string, rep_dict, escaped_dict=None):
     pattern = re.compile("|".join([re.escape(k) if escaped_dict is None else k for k in sorted(rep_dict,key=len,reverse=True)]), flags=re.DOTALL)
@@ -195,8 +197,10 @@ def karnaukh_to_standard(alg):
     return " / ".join(standard_parts).strip()
 
 if __name__ == "__main__":
-    import polars as pl
     from pathlib import Path
+
+    import polars as pl
+
     from cubevis.cube import SquareOne
     sq = SquareOneColorizer()
     algs_data = {

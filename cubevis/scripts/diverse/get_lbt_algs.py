@@ -1,5 +1,5 @@
-from bs4 import BeautifulSoup
 import polars as pl
+from bs4 import BeautifulSoup
 
 with open("data/FTO/LBT/lbt-algs.html") as file:
     soup = BeautifulSoup(file)

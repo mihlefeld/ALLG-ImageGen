@@ -1,14 +1,17 @@
 import argparse
-from cubevis.colorizer import get_colorizer
-from cubevis.colorizer import FTOColorizer, ThreeByThreeZBLSColorizer, BaseColorizer, SquareOneColorizer
-from cubevis.cube import FTORotations, SquareOne
-from typing import List
 import json
 import os
-import polars as pl
-from pathlib import Path
 import re
+from pathlib import Path
+from typing import List
+
 import numpy as np
+import polars as pl
+
+from cubevis.colorizer import (BaseColorizer, FTOColorizer, SquareOneColorizer,
+                               ThreeByThreeZBLSColorizer, get_colorizer)
+from cubevis.cube import FTORotations, SquareOne
+
 
 def clean_alg(alg: str, puzzle):
     sq1_alg = re.match(r"\[[ A-Z]+\](/? [-?\d,-?\d /]+ -?\d,-?\d( /)?)", alg)

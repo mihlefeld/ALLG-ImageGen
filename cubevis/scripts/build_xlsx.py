@@ -1,10 +1,13 @@
-import xlsxwriter
-import polars as pl
-from cubevis.scripts.images import clean_alg, clean_alg_fto
-from cubevis.colorizer import FTOLTColorizer
-from pathlib import Path
-import cairosvg
 import io
+from pathlib import Path
+
+import cairosvg
+import polars as pl
+import xlsxwriter
+
+from cubevis.colorizer import FTOLTColorizer
+from cubevis.scripts.images import clean_alg, clean_alg_fto
+
 tmp = Path("data/tmp")
 tmp.mkdir(exist_ok=True, parents=True)
 col = FTOLTColorizer()

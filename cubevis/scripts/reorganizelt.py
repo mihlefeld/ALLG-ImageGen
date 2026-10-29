@@ -1,6 +1,8 @@
+import polars as pl
+
 from cubevis.cube import FTO
 from cubevis.scripts.images import clean_alg_fto
-import polars as pl
+
 df = pl.read_csv("data/FTO/LT/ftolt.csv")
 def change_auf(alg: str, auf_change):
     if auf_change == "":
