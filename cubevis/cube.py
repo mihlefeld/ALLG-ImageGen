@@ -431,6 +431,16 @@ W: (WRGP+2 WBZR+2 WPOB) (R1 R2 P1) (B1 B2 P2)
 C: (P1 P2 R2)\
 """)
 
+    def is_solved(self):
+        for k, (p, o) in self.pieces.items():
+            if re.match(r'[A-Z][1-3]', k):
+                if not (k[0] == p[0] and o == 0):
+                    return False
+            else:
+                if not (k == p and o == 0):
+                    return False
+        return True
+
     def to_reference_rotation(self, scramble=True, override_piece=None):
         pieces_backup = {k: v for k, v in self.pieces.items()}
         first_rotations = ["", "t xl ", "t' ", "t ", "xr ", "xr' t ", "xl ", "xr' "]

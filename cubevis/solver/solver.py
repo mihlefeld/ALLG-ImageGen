@@ -1,13 +1,14 @@
 """Python entrypoint for the trangium BatchSolver worker.
 
 Spawns Node.js on ``cubevis/solver/run_worker.js`` (a thin bridge that shims
-``self``/``postMessage`` and delegates to ``cubevis/solver/worker.js``), feeds
-the input as JSON via stdin, and parses the stream of newline-delimited JSON
-messages the worker emits.
+browser APIs and delegates to
+``trangium.github.io/BatchSolver2/worker.js``), feeds the input as JSON via
+stdin, and parses the stream of newline-delimited JSON messages the worker
+emits.
 
-The :class:`BatchInput` dataclass exposes exactly the same 11 options as
-``worker.js``'s ``main(input)`` function; field names match the JS-side keys
-so :meth:`BatchInput.to_worker_dict` is a straight conversion.
+The :class:`BatchInput` dataclass exposes the worker's input fields; names
+match the JS-side keys so :meth:`BatchInput.to_worker_dict` is a straight
+conversion.
 """
 
 from __future__ import annotations
@@ -20,7 +21,7 @@ from collections.abc import Callable
 from contextlib import nullcontext
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import typer
 from rich.progress import (
@@ -52,8 +53,8 @@ class _CasesPerSecondColumn(ProgressColumn):
 
 class BatchSolverError(RuntimeError):
     """Raised on any error reported by the worker or bridge, or on a mismatch
-    between the worker's reported ``num-states`` and the number of ``next-state``
-    messages actually received.
+    between the worker's reported ``num-states`` and the number of cases
+    actually received.
     """
 
 
@@ -98,11 +99,13 @@ class BatchInput:
             "preAdjust": self.preAdjust,
             "postAdjust": self.postAdjust,
             "subgroups": [dataclasses.asdict(s) for s in self.subgroups],
-            "sorting": [dataclasses.asdict(s) for s in self.sorting],
+            "sorting": [],
             "esq": self.esq,
             "rankesq": self.rankesq,
             "showPost": self.showPost,
             "optimise": self.optimise,
+            "sortBy": "STM",
+            "batching": "auto"
         }
 
     @classmethod
@@ -187,8 +190,8 @@ def run_batch(
     ------
     BatchSolverError
         If the worker reported any error ``stop`` messages, if the Node bridge
-        exited with a non-zero code, or if the reported ``num-states`` does not
-        match the number of ``next-state`` messages received.
+        exited with a non-zero code, or if the reported case count does not
+        match the cases received.
     """
     if not _BRIDGE_JS.exists():
         raise FileNotFoundError(f"Node bridge not found at {_BRIDGE_JS}")
@@ -279,6 +282,15 @@ def run_batch(
                             task_id,
                             description=f"BFS: {mval}",
                         )
+            elif mtype == "cases":
+                result.cases = [
+                    CaseResult(
+                        index=int(case["index"]),
+                        case_num=int(case["num"]),
+                        setup=str(case["setup"]),
+                    )
+                    for case in mval
+                ]
             elif mtype == "next-state":
                 result.cases.append(
                     CaseResult(
@@ -287,6 +299,22 @@ def run_batch(
                         setup=str(mval["setup"]),
                     )
                 )
+                if progress is not None and task_id is not None:
+                    progress.update(task_id, advance=1)
+            elif mtype == "solutions":
+                for case_solutions in mval:
+                    index = int(case_solutions["index"])
+                    if index < 0 or index >= len(result.cases):
+                        result.errors.append(
+                            f"Solutions message references unknown case index: {index}"
+                        )
+                        continue
+                    result.cases[index].solutions += [
+                        str(row[1])
+                        for row in case_solutions["rows"]
+                        if isinstance(row, list) and len(row) > 1
+                    ]
+            elif mtype == "case-done":
                 if progress is not None and task_id is not None:
                     progress.update(task_id, advance=1)
             elif mtype == "solution":
@@ -332,7 +360,7 @@ app = typer.Typer(
 
 @app.command()
 def solve(
-    input: Path | None = typer.Option(
+    input: Path | None = typer.Option(  # noqa: B008
         None,
         "--input",
         "-i",
@@ -346,7 +374,7 @@ def solve(
         "--stdin",
         help="Read the input JSON object from stdin instead of a file.",
     ),
-    output: Path | None = typer.Option(
+    output: Path | None  = typer.Option(  # noqa: B008
         None,
         "--output",
         "-o",

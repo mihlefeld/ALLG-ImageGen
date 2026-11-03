@@ -129,7 +129,7 @@ class BaseColorizer:
             inverted_moves.append(inverted)
         scramble = " ".join(inverted_moves)
         self.cube.scramble(" ".join(moves))
-        
+
         rotation = self.cube.to_reference_rotation(
             scramble=False, override_piece=ref_rot_override
         )
@@ -155,22 +155,20 @@ class BaseColorizer:
         with open(path, "w") as file:
             file.write(svg)
 
-    def needs_invert(self):
+    def needs_invert(self) -> bool:
         return True
 
-    def get_equivalences(self):
+    def get_equivalences(self) -> str:
         return ""
 
-    def get_prune_search_subgroup(self):
+    def get_prune_search_subgroup(self) -> str:
         return ""
 
-    def get_definitions(self):
+    def get_definitions(self) -> str:
         return self.cube.mdefs
 
-    def get_pre_adjust(self):
+    def get_pre_adjust(self) -> str:
         return "U"
 
-    def get_post_adjust(self):
+    def get_post_adjust(self) -> str:
         return "U"
-
-
